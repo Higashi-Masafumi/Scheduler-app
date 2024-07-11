@@ -1,6 +1,6 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "~/components/ui/card";
-import { Input } from "~/components/ui/input";
-import { Button } from "~/components/ui/button";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../components/ui/card";
+import { Input } from "../components/ui/input";
+import { Button } from "../components/ui/button";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -12,12 +12,13 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from "~/components/ui/form";
+} from "../components/ui/form";
 import { createClient } from "@supabase/supabase-js";
 import { type ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { createServerSupabaseClient } from "infra/supabase/auth";
+import { createServerSupabaseClient } from "../infra/supabase/auth";
 import { useActionData, useNavigate, useLoaderData } from "@remix-run/react";
+import React from "react";
 
 // Zod schemaの定義
 const formSchema = z.object({
