@@ -17,8 +17,7 @@ import { createClient } from "@supabase/supabase-js";
 import { type ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { createServerSupabaseClient } from "../infra/supabase/auth";
-import { useActionData, useNavigate, useLoaderData } from "@remix-run/react";
-import React from "react";
+import { useActionData, useNavigate, useLoaderData, NavLink } from "@remix-run/react";
 
 // Zod schemaの定義
 const formSchema = z.object({
@@ -43,7 +42,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signInWithPassword({
         email: email,
         password: password,
     });
@@ -54,7 +53,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         return json({ error: error.message }, { status: 400 });
     }
     // signupに成功したらホーム画面にリダイレクト
-    return redirect("/");
 }
 
 // TypeScript用のフォームデータの型定義
@@ -80,7 +78,7 @@ export default function Login() {
     async function onSubmit(formData: FormData) {
         const supabase = createClient(env.SUPABASE_URL!, env.SUPABASE_ANON_KEY!);
         // Supabaseにユーザーを登録
-        const { data, error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signInWithPassword({
             email: formData.email,
             password: formData.password,
         });
@@ -146,6 +144,7 @@ export default function Login() {
                         />
                         <Button type="submit" className="w-full">ログイン</Button>
                         <Button variant="outline" className="w-full">Googleでログイン</Button>
+                        <NavLink to="/signup" className="text-center block text-blue-500">アカウントを作成する</NavLink>
                     </form>
                 </CardContent>
             </Card>
