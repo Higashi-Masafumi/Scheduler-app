@@ -17,7 +17,7 @@ import { createClient } from "@supabase/supabase-js";
 import { ActionFunction, type ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { createServerSupabaseClient } from "../infra/supabase/auth";
-import { useActionData, useNavigate, useLoaderData } from "@remix-run/react";
+import { useActionData, useNavigate, useLoaderData, useSubmit } from "@remix-run/react";
 import { signUp } from "../db/server.user";
 
 // Zod schemaの定義
@@ -30,20 +30,36 @@ const formSchema = z.object({
 });
 
 export async function loader() {
-    return { env : {
-        SUPABASE_URL: process.env.VITE_SUPABASE_URL,
-        SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY,
-    }}
+    return {
+        env: {
+            SUPABASE_URL: process.env.VITE_SUPABASE_URL,
+            SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY,
+        }
+    }
 }
 
-export async function action ({ request }: ActionFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
+    // serverサイドの処理
     const formData = await request.formData();
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
+    const supabase = createClient(
+        process.env.VITE_SUPABASE_URL!,
+        process.env.VITE_SUPABASE_ANON_KEY!
+    );
+    const { data, error } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+    });
+    if (error) {
+        return json({ error: error.message }, { status: 400 });
+    }
+
     // ユーザーを登録
     console.log("register user");
     const user = await signUp(email, password);
     console.log(user);
+    return redirect("/");
 }
 
 // TypeScript用のフォームデータの型定義
@@ -60,30 +76,18 @@ export default function Login() {
         },
     });
 
-    const actionData = useActionData<{ error?: string }>();
-    const navigate = useNavigate();
-    const { env } = useLoaderData<typeof loader>();
+    const submit = useSubmit();
 
-
-    // フォームの送信処理
     async function onSubmit(formData: FormData) {
-        const supabase = createClient(env.SUPABASE_URL!, env.SUPABASE_ANON_KEY!);
-        // Supabaseにユーザーを登録
-        const { data, error } = await supabase.auth.signUp({
-            email: formData.email,
-            password: formData.password,
-        });
-        console.log(formData)
-        console.log(data);
-
-        if (error) {
-            form.setError("password", { message: error.message });
-        }
-        else {
-            // 登録に成功したらリダイレクト
-            navigate("/");
+        // データだけ受け取り、サーバーサイドの処理はaction関数で行う
+        try {
+            await submit(formData, { method: 'post' });
+        } catch (error) {
+            console.error("An error occurred during form submission:", error);
+            // Handle the error here, such as displaying an error message to the user
         }
     }
+
     return (
         <Form {...form}>
             <Card className="w-full max-w-md mx-auto">
@@ -110,7 +114,7 @@ export default function Login() {
                                     <FormDescription>
                                         メールアドレスを入力してください
                                     </FormDescription>
-                                    <FormMessage/>
+                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
@@ -127,7 +131,7 @@ export default function Login() {
                                             {...field}
                                         />
                                     </FormControl>
-                                    <FormMessage/>
+                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
