@@ -14,11 +14,11 @@ import {
     FormMessage,
 } from "../components/ui/form";
 import { createClient } from "@supabase/supabase-js";
-import { type ActionFunctionArgs } from "@remix-run/node";
+import { ActionFunction, type ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { createServerSupabaseClient } from "../infra/supabase/auth";
 import { useActionData, useNavigate, useLoaderData } from "@remix-run/react";
-import React from "react";
+import { signUp } from "../db/server.user";
 
 // Zod schemaの定義
 const formSchema = z.object({
@@ -36,25 +36,14 @@ export async function loader() {
     }}
 }
 
-export const action = async ({ request }: ActionFunctionArgs) => {
-    const { supabase, headers } = await createServerSupabaseClient(request);
-
+export async function action ({ request }: ActionFunctionArgs) {
     const formData = await request.formData();
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
-
-    const { data, error } = await supabase.auth.signUp({
-        email: email,
-        password: password,
-    });
-
-    console.log(error);
-
-    if (error) {
-        return json({ error: error.message }, { status: 400 });
-    }
-    // signupに成功したらホーム画面にリダイレクト
-    return redirect("/");
+    // ユーザーを登録
+    console.log("register user");
+    const user = await signUp(email, password);
+    console.log(user);
 }
 
 // TypeScript用のフォームデータの型定義
@@ -95,8 +84,6 @@ export default function Login() {
             navigate("/");
         }
     }
-
-
     return (
         <Form {...form}>
             <Card className="w-full max-w-md mx-auto">

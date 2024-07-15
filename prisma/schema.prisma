@@ -6,6 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  recursive_type_depth = 5
 }
 
 datasource db {
@@ -16,7 +17,37 @@ datasource db {
 
 model User {
   id        Int      @id @default(autoincrement())
-  name  String?
+  name  String @db.VarChar(30) @default("anoymous")
   email     String   @unique
   password  String
+  holdingEvents Events[]
+  participatingEvents Participants[]
+}
+
+model Events {
+  id        Int      @id @default(autoincrement())
+  title    String  @db.VarChar(50) @default("無名のイベント")
+  description String?
+  holder User @relation(fields: [holderId], references: [id])
+  holderId Int
+  createdAt DateTime @default(now())
+  schedules Schedules[]
+}
+
+model Schedules {
+  id       Int      @id @default(autoincrement())
+  event Events @relation(fields: [eventId], references: [id])
+  eventId Int
+  startAt DateTime
+  endAt DateTime
+  participants Participants[]
+}
+
+model Participants {
+  id       Int      @id @default(autoincrement())
+  user User @relation(fields: [userId], references: [id])
+  userId Int
+  schedule Schedules @relation(fields: [scheduleId], references: [id])
+  scheduleId Int
+  abscence Boolean
 }
