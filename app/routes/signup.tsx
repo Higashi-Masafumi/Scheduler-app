@@ -43,18 +43,6 @@ export async function action({ request }: ActionFunctionArgs) {
     const formData = await request.formData();
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
-    const supabase = createClient(
-        process.env.VITE_SUPABASE_URL!,
-        process.env.VITE_SUPABASE_ANON_KEY!
-    );
-    const { data, error } = await supabase.auth.signUp({
-        email: email,
-        password: password,
-    });
-    if (error) {
-        return json({ error: error.message }, { status: 400 });
-    }
-
     // ユーザーを登録
     console.log("register user");
     const user = await signUp(email, password);
@@ -77,8 +65,22 @@ export default function Login() {
     });
 
     const submit = useSubmit();
+    const { env } = useLoaderData<typeof loader>();
 
     async function onSubmit(formData: FormData) {
+        const supabase = createClient(env.SUPABASE_URL!, env.SUPABASE_ANON_KEY!);
+        const { data, error } = await supabase.auth.signUp({
+            email: formData.email,
+            password: formData.password,
+        });
+
+        if (error) {
+            form.setError("email", {
+                type: "manual",
+                message: error.message,
+            });
+            return;
+        }
         // データだけ受け取り、サーバーサイドの処理はaction関数で行う
         try {
             await submit(formData, { method: 'post' });
