@@ -16,7 +16,6 @@ import {
 import { createClient } from "@supabase/supabase-js";
 import { ActionFunction, type ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { createServerSupabaseClient } from "../infra/supabase/auth";
 import { useActionData, useNavigate, useLoaderData, useSubmit } from "@remix-run/react";
 import { signUp } from "../db/server.user";
 

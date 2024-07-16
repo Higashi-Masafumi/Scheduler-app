@@ -11,3 +11,13 @@ export const signUp = async function (email: string, password: string) {
   });
   return user;
 }
+
+export const signIn = async function (email: string, password: string) {
+    const user = await prisma.user.findUnique({
+        where: {
+        email,
+        password,
+        },
+    });
+    return user;
+    }

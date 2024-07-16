@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  recursive_type_depth = 5
 }
 
 datasource db {
@@ -21,7 +20,8 @@ model User {
   email     String   @unique
   password  String
   holdingEvents Events[]
-  participatingEvents Participants[]
+  EventSchedules Participants[]
+  participatingEvents UsersEvents[]
 }
 
 model Events {
@@ -32,6 +32,7 @@ model Events {
   holderId Int
   createdAt DateTime @default(now())
   schedules Schedules[]
+  participants UsersEvents[]
 }
 
 model Schedules {
@@ -50,4 +51,12 @@ model Participants {
   schedule Schedules @relation(fields: [scheduleId], references: [id])
   scheduleId Int
   abscence Boolean
+}
+
+model UsersEvents {
+  id       Int      @id @default(autoincrement())
+  user User @relation(fields: [userId], references: [id])
+  userId Int
+  event Events @relation(fields: [eventId], references: [id])
+  eventId Int
 }

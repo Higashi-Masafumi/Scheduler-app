@@ -16,8 +16,9 @@ import {
 import { createClient } from "@supabase/supabase-js";
 import { type ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { createServerSupabaseClient } from "../infra/supabase/auth";
-import { useActionData, useNavigate, useLoaderData, NavLink } from "@remix-run/react";
+import { useActionData, useNavigate, useLoaderData, NavLink, useSubmit } from "@remix-run/react";
+import { signIn } from "../db/server.user";
+import { getSession, commitSession } from "~/sessions";
 
 // Zod schemaの定義
 const formSchema = z.object({
@@ -36,23 +37,23 @@ export async function loader() {
 }
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-    const { supabase, headers } = await createServerSupabaseClient(request);
-
     const formData = await request.formData();
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
-
-    const { data, error } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: password,
-    });
-
-    console.log(error);
-
-    if (error) {
-        return json({ error: error.message }, { status: 400 });
-    }
     // signupに成功したらホーム画面にリダイレクト
+    const user = await signIn(email, password);
+    if (user) {
+        const session = await getSession(request.headers.get("Cookie"));
+        // sessionにユーザーIDを保存
+        session.set("userId", user.id);
+        // cookieにセッションを保存
+        return redirect("/",
+            { headers: {
+                "Set-Cookie": await commitSession(session),
+            }}
+        );
+    }
+
 }
 
 // TypeScript用のフォームデータの型定義
@@ -72,6 +73,7 @@ export default function Login() {
     const actionData = useActionData<{ error?: string }>();
     const navigate = useNavigate();
     const { env } = useLoaderData<typeof loader>();
+    const submit = useSubmit();
 
 
     // フォームの送信処理
@@ -82,15 +84,11 @@ export default function Login() {
             email: formData.email,
             password: formData.password,
         });
-        console.log(formData)
-        console.log(data);
-
         if (error) {
             form.setError("password", { message: error.message });
         }
         else {
-            // 登録に成功したらリダイレクト
-            navigate("/");
+            submit(formData, {method: "post"});
         }
     }
 
