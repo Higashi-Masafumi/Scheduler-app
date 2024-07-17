@@ -13,7 +13,7 @@ import {
     FormLabel,
     FormMessage,
 } from "../components/ui/form";
-import { createClient } from "@supabase/supabase-js";
+import { createBrowserClient } from "@supabase/ssr"
 import { type ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useActionData, useNavigate, useLoaderData, NavLink, useSubmit } from "@remix-run/react";
@@ -42,10 +42,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const password = formData.get("password") as string;
     // signupに成功したらホーム画面にリダイレクト
     const user = await signIn(email, password);
+    console.log(user);
     if (user) {
         const session = await getSession(request.headers.get("Cookie"));
         // sessionにユーザーIDを保存
         session.set("userId", user.id);
+
+        console.log("Session data", session.data);
         // cookieにセッションを保存
         return redirect("/",
             { headers: {
@@ -78,7 +81,7 @@ export default function Login() {
 
     // フォームの送信処理
     async function onSubmit(formData: FormData) {
-        const supabase = createClient(env.SUPABASE_URL!, env.SUPABASE_ANON_KEY!);
+        const supabase = createBrowserClient(env.SUPABASE_URL!, env.SUPABASE_ANON_KEY!);
         // Supabaseにユーザーを登録
         const { data, error } = await supabase.auth.signInWithPassword({
             email: formData.email,

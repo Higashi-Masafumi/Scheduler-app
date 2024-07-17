@@ -17,6 +17,7 @@ datasource db {
 model User {
   id        Int      @id @default(autoincrement())
   name  String @db.VarChar(30) @default("anoymous")
+  bio String?
   email     String   @unique
   password  String
   holdingEvents Events[]
