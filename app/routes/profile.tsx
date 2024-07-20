@@ -23,7 +23,7 @@ import {
 // Zod schemaの定義
 const formSchema = z.object({
     name: z.string().min(1, { message: '名前を入力してください' }),
-    bio: z.string().min(1, { message: '自己紹介を入力してください' }),
+    bio: z.string().min(0, { message: '自己紹介を入力してください' }),
 });
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -61,8 +61,8 @@ export default function Profile() {
     const form = useForm<FormData>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            name: userData.name,
-            bio: userData.bio,
+            name: "",
+            bio: "",
         },
     });
     const submit = useSubmit();
@@ -73,45 +73,46 @@ export default function Profile() {
     }
     return (
         <Form {...form}>
-            <div className="px-4 space-y-10 py-5 sm:px-6">
-                <header className="flex items-center space-x-3">
-                    <div className="space-y-1">
-                        <h1 className="text-2xl font-semibold">{userData.name}</h1>
-                    </div>
-                </header>
-            </div>
-            <div className="space-y-10 py-4">
+            <div className="space-y-10 py-10">
                 <Card>
+                    <CardHeader>
+                        <CardTitle>{userData.name}</CardTitle>
+                        <CardDescription>{userData.bio}</CardDescription>
+                    </CardHeader>
                     <CardContent>
                         <form onSubmit={form.handleSubmit(onSubmit)}>
-                            <FormField
-                                control={form.control}
-                                name="name"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>名前</FormLabel>
-                                        <FormControl>
-                                            <Input {...field} />
-                                        </FormControl>
-                                        <FormDescription>新しい名前を入力してください</FormDescription>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="bio"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>自己紹介</FormLabel>
-                                        <FormControl>
-                                            <Textarea {...field} />
-                                        </FormControl>
-                                        <FormDescription>自己紹介を入力してください</FormDescription>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                            <div className="space-y-4 py-3">
+                                <FormField
+                                    control={form.control}
+                                    name="name"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>名前</FormLabel>
+                                            <FormControl>
+                                                <Input {...field} />
+                                            </FormControl>
+                                            <FormDescription>新しい名前を入力してください</FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                            <div className="space-y-4 py-5">
+                                <FormField
+                                    control={form.control}
+                                    name="bio"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>自己紹介</FormLabel>
+                                            <FormControl>
+                                                <Textarea {...field} />
+                                            </FormControl>
+                                            <FormDescription>自己紹介を入力してください</FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                             <Button type="submit">保存</Button>
                         </form>
                     </CardContent>

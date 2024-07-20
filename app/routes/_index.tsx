@@ -40,17 +40,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export default function Index() {
   return (
     <div>
-      <div className="flex mx-5 my-5">
-        <NavigationMenu>
-          <NavigationMenuList>
-            <NavLink to="/profile">
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                プロフィール
-              </NavigationMenuLink>
-            </NavLink>
-          </NavigationMenuList>
-        </NavigationMenu>
-      </div>
       <Table>
         <TableCaption>日程調整中のイベント一覧</TableCaption>
         <TableHeader>
