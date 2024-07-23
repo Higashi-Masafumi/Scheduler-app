@@ -89,7 +89,7 @@ export default function Profile() {
                                         <FormItem>
                                             <FormLabel>名前</FormLabel>
                                             <FormControl>
-                                                <Input {...field} />
+                                                <Input {...field} placeholder="山田　太郎"/>
                                             </FormControl>
                                             <FormDescription>新しい名前を入力してください</FormDescription>
                                             <FormMessage />
@@ -105,7 +105,7 @@ export default function Profile() {
                                         <FormItem>
                                             <FormLabel>自己紹介</FormLabel>
                                             <FormControl>
-                                                <Textarea {...field} />
+                                                <Textarea {...field} placeholder="大学一年生です。よろしくお願いします。"/>
                                             </FormControl>
                                             <FormDescription>自己紹介を入力してください</FormDescription>
                                             <FormMessage />

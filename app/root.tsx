@@ -7,18 +7,20 @@ import {
   NavLink,
 } from "@remix-run/react";
 import "./tailwind.css";
-import {
-  NavigationMenu,
-  NavigationMenuList,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuTrigger,
-  NavigationMenuContent,
-} from "~/components/ui/navigation-menu";
-import { cn } from "~/lib/utils";
-import React from "react";
-import { Navigation } from "lucide-react";
-
+import { 
+DropdownMenu,
+DropdownMenuContent,
+DropdownMenuGroup,
+DropdownMenuItem,
+DropdownMenuLabel,
+DropdownMenuPortal,
+DropdownMenuSeparator,
+DropdownMenuShortcut,
+DropdownMenuSub,
+DropdownMenuSubContent,
+DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+import { Button } from "~/components/ui/button";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -42,52 +44,32 @@ export function NavigationHeader() {
   return (
     <header className="bg-slate-800">
       <div className="container mx-auto flex justify-between items-center p-4">
-        <NavigationMenu>
-          <NavigationMenuList>
-            <NavigationMenuItem>
-              <NavigationMenuTrigger>
-                メニュー
-              </NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="max-width-list">
-                  <ListItem title="イベント一覧" href="/"/>
-                  <ListItem title="プロフィール編集" href="/profile"/>
-                  <ListItem title="あなたの開催中のイベント" href="/events"/>
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline">メニュー選択</Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56">
+            <DropdownMenuLabel>メニュー</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <NavLink to="/profile">プロフィール</NavLink>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <NavLink to="/events">あなたのイベント</NavLink>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <NavLink to="/new-events">イベント作成</NavLink>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <NavLink to="/">イベント一覧</NavLink>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );
 }
 
-const ListItem = React.forwardRef<
-  React.ElementRef<"a">,
-  React.ComponentPropsWithoutRef<"a">
->(({ className, title, children, ...props }, ref) => {
-  return (
-    <li>
-      <NavigationMenuLink asChild>
-        <a
-          ref={ref}
-          className={cn(
-            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-            className
-          )}
-          {...props}
-        >
-          <div className="text-sm font-medium leading-none">{title}</div>
-          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-            {children}
-          </p>
-        </a>
-      </NavigationMenuLink>
-    </li>
-  )
-})
-ListItem.displayName = "ListItem"
 
 export default function App() {
   return (

@@ -144,7 +144,6 @@ export default function Login() {
                             )}
                         />
                         <Button type="submit" className="w-full">ログイン</Button>
-                        <Button variant="outline" className="w-full">Googleでログイン</Button>
                         <NavLink to="/signup" className="text-center block text-blue-500">アカウントを作成する</NavLink>
                     </form>
                 </CardContent>
