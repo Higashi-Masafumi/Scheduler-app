@@ -41,3 +41,17 @@ export const getHoldingEvents = async function (userId: number) {
     const holdingEvents = user?.holdingEvents;
     return holdingEvents;
 }
+
+// create new event
+export const createEvent = async function (userId: number, data: { title: string, description: string, candidates: string[] }) {
+    const event = await prisma.events.create({
+        data: {
+            title: data.title,
+            description: data.description,
+            candidates: data.candidates,
+            holderId: userId,
+            createdAt: new Date()
+        }
+    });
+    return event;
+}
