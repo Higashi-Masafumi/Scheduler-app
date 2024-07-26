@@ -23,6 +23,7 @@
     "@remix-run/serve": "^2.10.2",
     "@supabase/ssr": "^0.4.0",
     "@supabase/supabase-js": "^2.44.3",
+    "@tanstack/react-table": "^8.19.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "isbot": "^4.1.0",
