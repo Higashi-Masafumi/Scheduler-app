@@ -74,6 +74,9 @@ export default function Profile() {
     return (
         <Form {...form}>
             <div className="space-y-10 py-10">
+                <div className="flex justify-between items-center mb-8 px-5">
+                    <h1 className="text-4xl font-extrabold text-indigo-600">プロフィール編集画面</h1>
+                </div>
                 <Card>
                     <CardHeader>
                         <CardTitle>{userData.name}</CardTitle>
@@ -89,7 +92,7 @@ export default function Profile() {
                                         <FormItem>
                                             <FormLabel>名前</FormLabel>
                                             <FormControl>
-                                                <Input {...field} placeholder="山田　太郎"/>
+                                                <Input {...field} placeholder="山田　太郎" />
                                             </FormControl>
                                             <FormDescription>新しい名前を入力してください</FormDescription>
                                             <FormMessage />
@@ -105,7 +108,7 @@ export default function Profile() {
                                         <FormItem>
                                             <FormLabel>自己紹介</FormLabel>
                                             <FormControl>
-                                                <Textarea {...field} placeholder="大学一年生です。よろしくお願いします。"/>
+                                                <Textarea {...field} placeholder="大学一年生です。よろしくお願いします。" />
                                             </FormControl>
                                             <FormDescription>自己紹介を入力してください</FormDescription>
                                             <FormMessage />

@@ -43,7 +43,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 export function NavigationHeader() {
   return (
     <header className="bg-slate-800">
-      <div className="container mx-auto flex justify-between items-center p-4">
+      <div className="container mx-8 flex justify-between items-center p-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline">メニュー選択</Button>

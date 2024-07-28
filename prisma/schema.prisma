@@ -37,7 +37,6 @@ model Events {
   participants UsersEvents[]
 }
 
-
 model Participants {
   id       Int      @id @default(autoincrement())
   user User @relation(fields: [userId], references: [id])

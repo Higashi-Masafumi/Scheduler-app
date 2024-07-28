@@ -40,3 +40,22 @@ export const signIn = async function (email: string, password: string) {
     });
     return user;
   }
+
+  // participate in event
+  export const participateinEvent = async function (userId: number, eventId: number) {
+    const findUser = await prisma.participants.findFirst({
+      where: {
+        userId,
+        eventId,
+      },
+    });
+    // 参加していない場合、参加する
+    if (!findUser) {
+      await prisma.participants.create({
+        data: {
+          userId,
+          eventId,
+        },
+      });
+    }
+  }

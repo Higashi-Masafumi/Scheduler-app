@@ -18,6 +18,7 @@ import { ActionFunction, type ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useActionData, useNavigate, useLoaderData, useSubmit } from "@remix-run/react";
 import { signUp } from "../db/server.user";
+import { commitSession, getSession } from "~/sessions";
 
 // Zod schemaの定義
 const formSchema = z.object({
@@ -45,13 +46,20 @@ export async function action({ request }: ActionFunctionArgs) {
     // ユーザーを登録
     console.log("register user");
     const user = await signUp(email, password);
-    console.log(user);
-    return redirect("/");
+    // セッションを保存
+    if (user) {
+        const session = await getSession(request.headers.get("Cookie"));
+        session.set("userId", user.id);
+        return redirect("/", {
+            headers: {
+                "Set-Cookie": await commitSession(session),
+            },
+        });
+    }
 }
 
 // TypeScript用のフォームデータの型定義
 type FormData = z.infer<typeof formSchema>;
-
 
 export default function Login() {
     // React Hook Formのセットアップ

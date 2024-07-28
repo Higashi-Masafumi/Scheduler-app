@@ -1,13 +1,5 @@
-import {
-    Table,
-    TableBody,
-    TableCaption,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '~/components/ui/table';
-import { useLoaderData } from '@remix-run/react';
+import { Button } from '~/components/ui/button';
+import { NavLink, useLoaderData } from '@remix-run/react';
 import { getSession } from '~/sessions';
 import { getHoldingEvents } from '~/db/server.event';
 import { LoaderFunctionArgs } from '@remix-run/node';
@@ -44,12 +36,13 @@ export type Event = {
 
 export const columns: ColumnDef<Event>[] = [
     {
-        accessorKey: "id",
-        header: "ID",
-    },
-    {
         accessorKey: "title",
         header: "イベント名",
+        cell: ({ row }) => {
+            return <Button variant="secondary">
+                <NavLink to={`/events/${row.original.id}`}>{row.original.title}</NavLink>
+            </Button>
+        }
     },
     {
         accessorKey: "description",
@@ -58,6 +51,9 @@ export const columns: ColumnDef<Event>[] = [
     {
         accessorKey: "createdAt",
         header: "作成日",
+        cell: ({ row }) => {
+            return <span>{new Date(row.original.createdAt).toLocaleDateString()}</span>
+        }
     },
 ];
 

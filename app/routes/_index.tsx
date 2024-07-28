@@ -1,25 +1,10 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHeader,
-  TableHead,
-  TableRow,
-} from "app/components/ui/table"
 import { useLoaderData, redirect, NavLink } from "@remix-run/react";
 import { getSession, commitSession } from "~/sessions";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from "../components/ui/navigation-menu";
-import { Navigation } from "lucide-react";
+import { DataTable } from "~/components/data-table";
+import { Button } from "~/components/ui/button";
+import { ColumnDef } from "@tanstack/react-table";
+import { getEvents } from "~/db/server.event";
 export const meta: MetaFunction = () => {
   return [
     { title: "Scheduler for you" },
@@ -34,24 +19,55 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (!userId) {
     return redirect("/login");
   }
-  return { userId };
+  const events = await getEvents(userId);
+  return { events };
 }
 
+export type Event = {
+  id: number;
+  title: string;
+  description: string | null;
+  createdAt: string;
+};
+
+export const columns: ColumnDef<Event>[] = [
+  {
+    accessorKey: "title",
+    header: "イベント名",
+    cell: ({ row }) => {
+      return (
+        <Button variant="secondary">
+          <NavLink to={`/events/${row.original.id}`}>{row.original.title}</NavLink>
+        </Button>
+      );
+    },
+  },
+  {
+    accessorKey: "description",
+    header: "説明",
+  },
+  {
+    accessorKey: "holder",
+    header: "開催者",
+  },
+  {
+    accessorKey: "createdAt",
+    header: "作成日",
+    cell: ({ row }) => {
+      return <span>{new Date(row.original.createdAt).toLocaleDateString()}</span>;
+    },
+  },
+];
+
 export default function Index() {
+  const { events } = useLoaderData<typeof loader>();
+  console.log("events", events);
   return (
-    <div>
-      <Table>
-        <TableCaption>日程調整中のイベント一覧</TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="max-w-fit">イベント名</TableHead>
-            <TableHead className="max-w-fit">開催予定日程</TableHead>
-            <TableHead className="max-w-fit">あなたの出席</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-        </TableBody>
-      </Table>
+    <div className="container mx-auto">
+      <div className="text-sm py-10">
+        <h1 className="text-3xl font-bold">あなたが参加中のイベント一覧</h1>
+      </div>
+      <DataTable columns={columns} data={events} />
     </div>
   )
 }

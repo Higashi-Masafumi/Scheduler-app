@@ -4,17 +4,29 @@ const prisma = new PrismaClient();
 
 // return events user participated in
 export const getEvents = async function (userId: number) {
-    const user = await prisma.user.findUnique({
+    const user = await prisma.participants.findMany({
         where: {
-            id: userId
+            userId
         },
         include: {
-            participatingEvents: true
+            event: {
+                include: {
+                    holder: true
+                }
+            }
         }
     });
 
-    const participatingEvents = user?.participatingEvents;
-    return participatingEvents;
+    const events = user.map(participant => {
+        return {
+            id: participant.event.id,
+            title: participant.event.title,
+            description: participant.event.description,
+            holder: participant.event.holder.name,
+            createdAt: participant.event.createdAt
+        }
+    });
+    return events;
     }
 
 // return events by id
@@ -22,9 +34,29 @@ export const getEvent = async function (eventId: number) {
     const event = await prisma.events.findUnique({
         where: {
             id: eventId
+        },
+        include: {
+            eventSchedules: {
+                select: {
+                    user: true,
+                    abscence: true
+                }
+            }
         }
     });
-    return event;
+
+    const participants = event?.eventSchedules.map(schedule => {
+        return {
+            id: schedule.user.id,
+            name: schedule.user.name,
+            abscence: schedule.abscence
+        }
+    }
+    );
+    return {
+        ...event,
+        participants
+    };
 }
 
 // return holding events
