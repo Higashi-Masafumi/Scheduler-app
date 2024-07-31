@@ -39,6 +39,7 @@ export const getEvent = async function (eventId: number) {
         include: {
             eventSchedules: {
                 select: {
+                    id: true,
                     user: true,
                     abscence: true
                 }
@@ -48,7 +49,8 @@ export const getEvent = async function (eventId: number) {
 
     const participants = event?.eventSchedules.map(schedule => {
         return {
-            id: schedule.user.id,
+            id: schedule.id,
+            userId: schedule.user.id,
             name: schedule.user.name,
             abscence: schedule.abscence
         }
@@ -94,6 +96,18 @@ export const withdrawEvent = async function (id: number) {
     await prisma.participants.delete({
         where: {
             id
+        }
+    });
+}
+
+// update abscence
+export const updateAbscence = async function (participantId: number, abscence: boolean[]) {
+    await prisma.participants.update({
+        where: {
+            id: participantId
+        },
+        data: {
+            abscence
         }
     });
 }
