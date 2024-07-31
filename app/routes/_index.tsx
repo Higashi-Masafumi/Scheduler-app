@@ -1,10 +1,21 @@
-import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { useLoaderData, redirect, NavLink } from "@remix-run/react";
+import type { LoaderFunctionArgs, MetaFunction, ActionFunctionArgs } from "@remix-run/node";
+import { useLoaderData, redirect, NavLink, Form } from "@remix-run/react";
 import { getSession, commitSession } from "~/sessions";
 import { DataTable } from "~/components/data-table";
 import { Button } from "~/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "~/components/ui/alert-dialog";
 import { ColumnDef } from "@tanstack/react-table";
-import { getEvents } from "~/db/server.event";
+import { getEvents, withdrawEvent } from "~/db/server.event";
 export const meta: MetaFunction = () => {
   return [
     { title: "Scheduler for you" },
@@ -23,8 +34,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return { events };
 }
 
+export async function action({ request }: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const id = Number(formData.get("id"));
+  await withdrawEvent(id);
+  return redirect("/");
+}
+
 export type Event = {
   id: number;
+  eventId: number;
   title: string;
   description: string | null;
   createdAt: string;
@@ -37,7 +56,7 @@ export const columns: ColumnDef<Event>[] = [
     cell: ({ row }) => {
       return (
         <Button variant="secondary">
-          <NavLink to={`/events/${row.original.id}`}>{row.original.title}</NavLink>
+          <NavLink to={`/events/${row.original.eventId}`}>{row.original.title}</NavLink>
         </Button>
       );
     },
@@ -56,6 +75,33 @@ export const columns: ColumnDef<Event>[] = [
     cell: ({ row }) => {
       return <span>{new Date(row.original.createdAt).toLocaleDateString()}</span>;
     },
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      return (
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="destructive">退会</Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>イベントから退会しますか？</AlertDialogHeader>
+            <AlertDialogDescription>
+              この操作は取り消せません。本当に退会しますか？
+            </AlertDialogDescription>
+            <AlertDialogFooter>
+              <AlertDialogCancel>キャンセル</AlertDialogCancel>
+              <Form
+                method="post"
+              >
+                <input type="hidden" name="id" value={row.original.id} />
+                <AlertDialogAction type="submit">退会</AlertDialogAction>
+              </Form>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )
+    }
   },
 ];
 

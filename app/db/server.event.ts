@@ -19,7 +19,8 @@ export const getEvents = async function (userId: number) {
 
     const events = user.map(participant => {
         return {
-            id: participant.event.id,
+            id: participant.id,
+            eventId: participant.event.id,
             title: participant.event.title,
             description: participant.event.description,
             holder: participant.event.holder.name,
@@ -86,4 +87,13 @@ export const createEvent = async function (userId: number, data: { title: string
         }
     });
     return event;
+}
+
+// withdraw from event
+export const withdrawEvent = async function (id: number) {
+    await prisma.participants.delete({
+        where: {
+            id
+        }
+    });
 }
