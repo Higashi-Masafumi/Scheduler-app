@@ -97,3 +97,17 @@ export const withdrawEvent = async function (id: number) {
         }
     });
 }
+
+// delete event
+export const deleteEvent = async function (eventId: number) {
+    await prisma.participants.deleteMany({
+        where: {
+            eventId
+        }
+    });
+    await prisma.events.delete({
+        where: {
+            id: eventId
+        }
+    });
+}

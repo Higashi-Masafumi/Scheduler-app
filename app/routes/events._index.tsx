@@ -1,10 +1,22 @@
 import { Button } from '~/components/ui/button';
-import { NavLink, useLoaderData } from '@remix-run/react';
+import { NavLink, useLoaderData, Form, redirect } from '@remix-run/react';
 import { getSession } from '~/sessions';
 import { getHoldingEvents } from '~/db/server.event';
-import { LoaderFunctionArgs } from '@remix-run/node';
+import { LoaderFunctionArgs, ActionFunctionArgs } from '@remix-run/node';
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from '~/components/data-table';
+import {
+AlertDialog,
+AlertDialogAction,
+AlertDialogCancel,
+AlertDialogContent,
+AlertDialogDescription,
+AlertDialogFooter,
+AlertDialogHeader,
+AlertDialogTitle,
+AlertDialogTrigger,
+} from '~/components/ui/alert-dialog';
+import { deleteEvent } from '~/db/server.event';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
     const session = await getSession(request.headers.get('Cookie'));
@@ -24,6 +36,13 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         };
     }
     return { holdingEvents };
+};
+
+export const action = async ({ request }: ActionFunctionArgs) => {
+    const formData = await request.formData();
+    const id = Number(formData.get('id'));
+    await deleteEvent(id);
+    return redirect('/ events');
 };
 
 export type Event = {
@@ -55,6 +74,33 @@ export const columns: ColumnDef<Event>[] = [
             return <span>{new Date(row.original.createdAt).toLocaleDateString()}</span>
         }
     },
+    {
+        id: "actions",
+        cell: ({ row }) => {
+            return (
+                <AlertDialog>
+                    <AlertDialogTrigger>
+                        <Button variant="destructive">削除</Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>イベントに関連する情報を全て削除しますか？</AlertDialogTitle>
+                        </AlertDialogHeader>
+                        <AlertDialogDescription>
+                            この操作は取り消せません。本当に削除しますか？
+                        </AlertDialogDescription>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>キャンセル</AlertDialogCancel>
+                            <Form method="post">
+                                <input type="hidden" name="id" value={row.original.id} />
+                                <AlertDialogAction type="submit">削除</AlertDialogAction>
+                            </Form>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            )
+    }
+}
 ];
 
 export default function HoldingEvents() {
