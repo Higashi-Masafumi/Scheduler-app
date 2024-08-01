@@ -53,16 +53,16 @@ export function NavigationHeader() {
             <DropdownMenuLabel>メニュー</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <NavLink to="/profile">プロフィール</NavLink>
+              <NavLink to="/">参加中のイベント一覧</NavLink>
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <NavLink to="/events">あなたのイベント</NavLink>
+              <NavLink to="/events">あなたの開催中イベント</NavLink>
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <NavLink to="/new-events">イベント作成</NavLink>
+              <NavLink to="/new-events">新規イベント作成</NavLink>
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <NavLink to="/">イベント一覧</NavLink>
+              <NavLink to="/profile">プロフィール編集</NavLink>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

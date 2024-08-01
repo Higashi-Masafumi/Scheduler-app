@@ -33,7 +33,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     console.log('session', user);
     if (!user) {
         console.log(session);
-        return redirect('/login');
+        return redirect('/');
     }
     const userData = await getUser(user);
     return userData;
@@ -73,9 +73,9 @@ export default function Profile() {
     }
     return (
         <Form {...form}>
-            <div className="space-y-10 py-10">
-                <div className="flex justify-between items-center mb-8 px-5">
-                    <h1 className="text-4xl font-extrabold text-indigo-600">プロフィール編集画面</h1>
+            <div className="space-y-10 px-5 py-5">
+                <div className="flex justify-between pt-5">
+                    <h1 className="text-4xl font-bold">プロフィール編集画面</h1>
                 </div>
                 <Card>
                     <CardHeader>

@@ -60,6 +60,7 @@ type Participant = {
     id: number;
     userId: number;
     name: string;
+    remarks: string;
     abscence: string[];
 }
 
@@ -122,6 +123,10 @@ export default function EventTable() {
                 }
             },
         })),
+        {
+            accessorKey: "remarks",
+            header: "備考",
+        }
     ];
 
 

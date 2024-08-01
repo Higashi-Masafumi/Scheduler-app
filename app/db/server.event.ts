@@ -41,7 +41,8 @@ export const getEvent = async function (eventId: number) {
                 select: {
                     id: true,
                     user: true,
-                    abscence: true
+                    abscence: true,
+                    remarks: true
                 }
             }
         }
@@ -52,7 +53,8 @@ export const getEvent = async function (eventId: number) {
             id: schedule.id,
             userId: schedule.user.id,
             name: schedule.user.name,
-            abscence: schedule.abscence
+            abscence: schedule.abscence,
+            remarks: schedule.remarks
         }
     }
     );
