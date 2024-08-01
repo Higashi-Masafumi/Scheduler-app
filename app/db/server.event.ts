@@ -101,7 +101,7 @@ export const withdrawEvent = async function (id: number) {
 }
 
 // update abscence
-export const updateAbscence = async function (participantId: number, abscence: boolean[]) {
+export const updateAbscence = async function (participantId: number, abscence: string[]) {
     await prisma.participants.update({
         where: {
             id: participantId

@@ -21,6 +21,7 @@ DropdownMenuSubContent,
 DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Button } from "~/components/ui/button";
+import { Toaster } from "~/components/ui/toaster";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -78,6 +79,7 @@ export default function App() {
       <main>
         <Outlet />
       </main>
+      <Toaster />
     </div>
   )
 }

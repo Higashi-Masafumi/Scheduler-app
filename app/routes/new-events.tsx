@@ -3,7 +3,8 @@ import { Input } from '~/components/ui/input';
 import { Textarea } from '~/components/ui/textarea';
 import { Button } from '~/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '~/components/ui/form';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
+import { useToast } from '~/components/ui/use-toast';
+import { ToastAction } from '~/components/ui/toast';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -59,12 +60,19 @@ export default function NewEvents() {
     });
 
     const [candidates, setCandidates] = useState<string[]>([]);
-
+    const { toast } = useToast();
     const submit = useSubmit();
 
     async function onSubmit(formData: FormData) {
         const formDataWithCandidates = { ...formData, candidates };
-        console.log(formDataWithCandidates);
+        if (candidates.length === 0) {
+            toast({
+                title: '候補日時が選択されていません',
+                description: '候補日時を選択してください',
+                action: <ToastAction altText="閉じる">閉じる</ToastAction>
+            });
+            return;
+        }
         await submit(formDataWithCandidates, { method: 'post' });
     };
 
@@ -107,7 +115,7 @@ export default function NewEvents() {
                             />
                         </div>
                         <div className="flex items-center space-y-4 my-4">
-                            <Label className="whitespace-nowrap mr-3">候補日時</Label>
+                            <Label className="whitespace-nowrap mr-3">候補日時選択</Label>
                             <Input
                                 type="datetime-local"
                                 onChange={(e) => setCandidates([...candidates, e.target.value])}

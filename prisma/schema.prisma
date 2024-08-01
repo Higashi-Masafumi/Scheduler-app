@@ -39,7 +39,7 @@ model Participants {
   id       Int      @id @default(autoincrement())
   user User @relation(fields: [userId], references: [id])
   userId Int
-  abscence Boolean[] @default([])
+  abscence String[] @default([])
   remarks String? @default("備考なし")
   event Events @relation(fields: [eventId], references: [id])
   eventId Int
