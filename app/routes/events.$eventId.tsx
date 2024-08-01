@@ -17,7 +17,6 @@ import { useForm } from 'react-hook-form';
 import { Label } from "../components/ui/label";
 import { getEvent } from '~/db/server.event';
 import { participateinEvent } from '~/db/server.user';
-import { useState } from 'react';
 import { updateAbscence } from '~/db/server.event';
 import {
     FormField,
@@ -28,6 +27,12 @@ import {
     FormDescription,
     FormLabel,
 } from "../components/ui/form";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+    TooltipProvider,
+}  from "../components/ui/tooltip";
 
 
 // Zod schemaの定義
@@ -90,7 +95,21 @@ export default function EventTable() {
         },
         ...(event.candidates ?? []).map((candidate, index) => ({
             accessorKey: `absence.${index}`,
-            header: () => <Label>{new Date(candidate).toLocaleString()}</Label>,
+            header: () => (
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <Button variant="link">{new Date(candidate).toLocaleDateString()}</Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <h3>出席可能メンバー一覧</h3>
+                            {participants.filter(participant => participant.abscence[index] === '出席').map(participant => (
+                                <p key={participant.id}>{participant.name}</p>
+                            ))}
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+            ),
             cell: ({ row }: { row: { original: Participant } }) => {
                 const participant = row.original;
                 // 自分自身の行のみ編集可能
