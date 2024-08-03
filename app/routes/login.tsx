@@ -98,7 +98,7 @@ export default function Login() {
 
     return (
         <Form {...form}>
-            <Card className="w-full max-w-md mx-auto">
+            <Card className="w-full max-w-md mx-auto my-10">
                 <CardHeader className="space-y-1">
                     <CardTitle className="text-2xl font-bold">ログイン</CardTitle>
                     <CardDescription>メールアドレスとパスワードを入力してください</CardDescription>
@@ -144,7 +144,11 @@ export default function Login() {
                             )}
                         />
                         <Button type="submit" className="w-full">ログイン</Button>
-                        <NavLink to="/signup" className="text-center block text-blue-500">アカウントを作成する</NavLink>
+                        <NavLink to="/signup" className="text-center block text-blue-500">
+                            <Button variant="secondary" className="w-full">
+                                アカウントを作成する
+                            </Button>
+                        </NavLink>
                     </form>
                 </CardContent>
             </Card>

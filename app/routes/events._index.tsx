@@ -21,6 +21,10 @@ import { deleteEvent } from '~/db/server.event';
 export const loader = async ({ request }: LoaderFunctionArgs) => {
     const session = await getSession(request.headers.get('Cookie'));
     const userId = session.get('userId');
+    // もしログインしていなかったら、ログイン画面にリダイレクト
+    if (!userId) {
+        return redirect('/login');
+    }
     const holdingEvents = await getHoldingEvents(userId);
     // もしholdingeventsがnullだったら、ダミーデータを返す
     if (!holdingEvents) {
@@ -65,7 +69,9 @@ export const columns: ColumnDef<Event>[] = [
     },
     {
         accessorKey: "description",
-        header: "説明",
+        header: () => {
+            return <span className="text-sm">説明</span>
+        }
     },
     {
         accessorKey: "createdAt",

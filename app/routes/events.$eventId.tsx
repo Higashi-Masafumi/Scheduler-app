@@ -32,12 +32,15 @@ import {
     TooltipContent,
     TooltipTrigger,
     TooltipProvider,
-}  from "../components/ui/tooltip";
+} from "../components/ui/tooltip";
+import { Input } from "../components/ui/input";
+import { ScrollArea, ScrollBar } from "../components/ui/scroll-area";
 
 
 // Zod schemaの定義
 const formSchema = z.object({
     abscence: z.array(z.string()),
+    remarks: z.string().min(0, { message: '備考を入力してください' }),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -57,7 +60,8 @@ export const action = async ({ request, params }: LoaderFunctionArgs) => {
     const formData = await request.formData();
     const participantId = Number(formData.get('participantId'));
     const abscence = JSON.parse(formData.get('abscence') as string);
-    await updateAbscence(participantId, abscence);
+    const remarks = formData.get('remarks') as string;
+    await updateAbscence(participantId, abscence, remarks);
     return redirect('/events');
 }
 
@@ -77,6 +81,7 @@ export default function EventTable() {
         resolver: zodResolver(formSchema),
         defaultValues: {
             abscence: user?.abscence ?? [],
+            remarks: user?.remarks ?? '',
         },
     });
     const submit = useSubmit();
@@ -85,7 +90,8 @@ export default function EventTable() {
         const formData = new FormData();
         formData.append('participantId', String(user?.id));
         formData.append('abscence', JSON.stringify(data.abscence));
-        submit(formData, {method: 'POST'});
+        formData.append('remarks', data.remarks);
+        submit(formData, { method: 'POST' });
     }
 
     const columns: ColumnDef<Participant>[] = [
@@ -99,10 +105,10 @@ export default function EventTable() {
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger>
-                            <Button variant="link">{new Date(candidate).toLocaleDateString()}</Button>
+                            <Button variant="link">{new Date(candidate).toLocaleString()}</Button>
                         </TooltipTrigger>
                         <TooltipContent>
-                            <h3>出席可能メンバー一覧</h3>
+                            <h3>出席可能な参加者</h3>
                             {participants.filter(participant => participant.abscence[index] === '出席').map(participant => (
                                 <p key={participant.id}>{participant.name}</p>
                             ))}
@@ -144,7 +150,29 @@ export default function EventTable() {
         })),
         {
             accessorKey: "remarks",
-            header: "備考",
+            header: () => <span className="min-w-80">備考</span>,
+            cell: ({ row }) => {
+                const participant = row.original;
+                if (participant.userId == userId) {
+                    return (
+                        <FormField
+                            control={form.control}
+                            name="remarks"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormControl>
+                                        <Input {...field} className="min-w-80"/>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    );
+                }
+                else {
+                    return <span>{participant.remarks}</span>
+                }
+            }
         }
     ];
 
@@ -159,7 +187,10 @@ export default function EventTable() {
                     <div className="mb-8">
                         <p className="text-gray-600 text-lg">{event.description}</p>
                     </div>
-                    <DataTable columns={columns} data={participants} />
+                    <ScrollArea className="mx-auto w-auto">
+                        <DataTable columns={columns} data={participants} />
+                        <ScrollBar orientation="horizontal" />
+                    </ScrollArea>
                     <Button type="submit" className="mt-8">出席情報を更新する</Button>
                 </div>
             </form>

@@ -33,7 +33,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     console.log('session', user);
     if (!user) {
         console.log(session);
-        return redirect('/');
+        return redirect('/login');
     }
     const userData = await getUser(user);
     return userData;
@@ -46,7 +46,7 @@ export const action: ActionFunction = async ({ request }: ActionFunctionArgs) =>
     const name = formData.get('name') as string;
     const bio = formData.get('bio') as string;
     await updateUser(user, { name, bio });
-    return redirect('/profile');
+    return redirect('/');
 };
 
 type FormData = z.infer<typeof formSchema>;

@@ -16,7 +16,7 @@ import {
 import { createClient } from "@supabase/supabase-js";
 import { ActionFunction, type ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useActionData, useNavigate, useLoaderData, useSubmit } from "@remix-run/react";
+import { useActionData, useNavigate, useLoaderData, useSubmit, NavLink } from "@remix-run/react";
 import { signUp } from "../db/server.user";
 import { commitSession, getSession } from "~/sessions";
 
@@ -99,7 +99,7 @@ export default function Login() {
 
     return (
         <Form {...form}>
-            <Card className="w-full max-w-md mx-auto">
+            <Card className="w-full max-w-md mx-auto my-10">
                 <CardHeader className="space-y-1">
                     <CardTitle className="text-2xl font-bold">サインアップ</CardTitle>
                     <CardDescription>メールアドレスとパスワードを入力してください</CardDescription>
@@ -145,7 +145,11 @@ export default function Login() {
                             )}
                         />
                         <Button type="submit" className="w-full">サインアップ</Button>
-                        <Button variant="outline" className="w-full">Googleでサインアップ</Button>
+                        <NavLink to="/login" className="text-center block mt-4">
+                            <Button variant="secondary" className="w-full">
+                                すでにアカウントをお持ちの方
+                            </Button>
+                        </NavLink>
                     </form>
                 </CardContent>
             </Card>
