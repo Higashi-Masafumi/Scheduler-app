@@ -65,6 +65,7 @@ export default function NewEvents() {
 
     async function onSubmit(formData: FormData) {
         const formDataWithCandidates = { ...formData, candidates };
+        // 候補日時を選択していない場合はエラーを表示
         if (candidates.length === 0) {
             toast({
                 title: '候補日時が選択されていません',
@@ -72,6 +73,19 @@ export default function NewEvents() {
                 action: <ToastAction altText="閉じる">閉じる</ToastAction>
             });
             return;
+        }
+        // 候補日時が未指定の場合はエラーを表示
+        for (const candidate of candidates) {
+            console.log(candidate);
+            const date = new Date(candidate);
+            if (isNaN(date.getTime())) {
+                toast({
+                    title: '日時未指定の候補日時があります',
+                    description: '候補日時を指定してください',
+                    action: <ToastAction altText="閉じる">閉じる</ToastAction>
+                });
+                return;
+            }
         }
         await submit(formDataWithCandidates, { method: 'post' });
     };

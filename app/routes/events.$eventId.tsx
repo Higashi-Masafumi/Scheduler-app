@@ -48,10 +48,14 @@ type FormData = z.infer<typeof formSchema>;
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     const session = await getSession(request.headers.get('Cookie'));
     const userId = session.get('userId');
+    if (!userId) {
+        return redirect('/login');
+    }
     const eventId = params.eventId;
-    console.log(eventId);
-    await participateinEvent(userId, Number(eventId));
     const event = await getEvent(Number(eventId));
+    if (!event.participants) {
+        throw new Response('Not Found', { status: 500 });
+    }
     return { event, userId };
 };
 

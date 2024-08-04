@@ -6,6 +6,7 @@ import {
   ScrollRestoration,
   NavLink,
   Form,
+  Link,
 } from "@remix-run/react";
 import "./tailwind.css";
 import {
@@ -22,6 +23,10 @@ import { Toaster } from "~/components/ui/toaster";
 import { getSession, destroySession } from "~/sessions";
 import { redirect } from "@remix-run/react";
 import { ActionFunctionArgs } from "@remix-run/node";
+import { useRouteError, isRouteErrorResponse } from "@remix-run/react";
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
+import { AlertCircle } from "lucide-react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const session = await getSession(request.headers.get("Cookie"));
@@ -30,6 +35,86 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       "Set-Cookie": await destroySession(session),
     },
   });
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  if (isRouteErrorResponse(error)) {
+    if (error.status === 404) {
+      return <Error404 />;
+    }
+    if (error.status === 500) {
+      return <Error500 />;
+    }
+    else{
+      return (
+        <div className="flex items-center justify-center w-full h-screen px-4">
+          <Card className="max-w-sm mx-auto">
+            <CardHeader>
+              <CardTitle className="text-2xl">不明なエラーが発生しました</CardTitle>
+              <CardDescription>
+                予期せぬエラーが発生しました。しばらくしてから再度お試しください。
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="w-full">
+                <Link to="/">
+                  <Button className="w-full">イベント一覧ページに戻る</Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+  }
+  else{
+    return <Outlet />;
+  }
+}
+
+function Error404() {
+  return (
+    <div className="flex items-center justify-center w-full h-screen px-4">
+      <Card className="max-w-sm mx-auto">
+        <CardHeader>
+          <CardTitle className="text-2xl">ページが見つかりません</CardTitle>
+          <CardDescription>
+            お探しのページが見つかりませんでした。
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="w-full">
+            <Link to="/">
+              <Button className="w-full">イベント一覧ページに戻る</Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function Error500() {
+  return (
+    <div className="flex items-center justify-center w-full h-screen px-4">
+      <Card className="max-w-sm mx-auto">
+        <CardHeader>
+          <CardTitle className="text-2xl">お探しのイベントが見つかりませんでした</CardTitle>
+          <CardDescription>
+            このイベントは存在しないか、開催者によりすでに削除されています。
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="w-full">
+            <Link to="/">
+              <Button className="w-full">イベント一覧ページに戻る</Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {

@@ -31,6 +31,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const user = session.get('userId');
 
     console.log('session', user);
+    // ユーザーがログインしていない場合はログイン画面にリダイレクト
     if (!user) {
         console.log(session);
         return redirect('/login');

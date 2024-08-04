@@ -46,7 +46,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const formData = await request.formData();
     const id = Number(formData.get('id'));
     await deleteEvent(id);
-    return redirect('/ events');
+    return redirect('/events');
 };
 
 export type Event = {
