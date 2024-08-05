@@ -43,6 +43,16 @@ export const signIn = async function (email: string, password: string) {
 
   // participate in event
   export const participateinEvent = async function (userId: number, eventId: number) {
+    // まずイベントが存在するかを確認
+    const findEvent = await prisma.events.findFirst({
+      where: {
+        id: eventId,
+      },
+    });
+    if (!findEvent) {
+      return 'event not found';
+    }
+    // イベントが存在することを確認したのち、ユーザーが参加しているかを確認
     const findUser = await prisma.participants.findFirst({
       where: {
         userId,

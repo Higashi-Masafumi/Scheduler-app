@@ -52,10 +52,13 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
         return redirect('/login');
     }
     const eventId = params.eventId;
-    const event = await getEvent(Number(eventId));
-    if (!event.participants) {
-        throw new Response('Not Found', { status: 500 });
+    // イベントが存在するか確認して、存在する場合で参加していない時に参加する
+    const res = await participateinEvent(userId, Number(eventId));
+    // イベントが見つからなかった場合、エラーを返す
+    if (res === "event not found") {
+        throw new Response("Event not found", { status: 500 });
     }
+    const event = await getEvent(Number(eventId));
     return { event, userId };
 };
 

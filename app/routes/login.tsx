@@ -30,10 +30,12 @@ const formSchema = z.object({
 });
 
 export async function loader() {
-    return { env : {
-        SUPABASE_URL: process.env.VITE_SUPABASE_URL,
-        SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY,
-    }}
+    return {
+        env: {
+            SUPABASE_URL: process.env.VITE_SUPABASE_URL,
+            SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY,
+        }
+    }
 }
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -51,9 +53,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         console.log("Session data", session.data);
         // cookieにセッションを保存
         return redirect("/",
-            { headers: {
-                "Set-Cookie": await commitSession(session),
-            }}
+            {
+                headers: {
+                    "Set-Cookie": await commitSession(session),
+                }
+            }
         );
     }
 
@@ -91,7 +95,7 @@ export default function Login() {
             form.setError("password", { message: error.message });
         }
         else {
-            submit(formData, {method: "post"});
+            submit(formData, { method: "post" });
         }
     }
 
@@ -122,7 +126,7 @@ export default function Login() {
                                     <FormDescription>
                                         メールアドレスを入力してください
                                     </FormDescription>
-                                    <FormMessage/>
+                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
@@ -139,7 +143,7 @@ export default function Login() {
                                             {...field}
                                         />
                                     </FormControl>
-                                    <FormMessage/>
+                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
