@@ -13,8 +13,8 @@ import {
     FormLabel,
     FormMessage,
 } from "../components/ui/form";
-import { createClient } from "@supabase/supabase-js";
-import { ActionFunction, type ActionFunctionArgs } from "@remix-run/node";
+import { createBrowserClient } from "@supabase/ssr"
+import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useActionData, useNavigate, useLoaderData, useSubmit, NavLink } from "@remix-run/react";
 import { signUp } from "../db/server.user";
@@ -29,13 +29,17 @@ const formSchema = z.object({
         .min(8, { message: "パスワードは8文字以上である必要があります" }),
 });
 
-export async function loader() {
-    return {
-        env: {
-            SUPABASE_URL: process.env.VITE_SUPABASE_URL,
-            SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY,
-        }
+export async function loader({request}: LoaderFunctionArgs) {
+    // ログインしている場合はホーム画面にリダイレクト
+    const session = await getSession(request.headers.get('Cookie'));
+    const userId = session.get('userId');
+    if (userId) {
+        return redirect('/');
     }
+    return { env: {
+        SUPABASE_URL: process.env.VITE_SUPABASE_URL,
+        SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY,
+    }};
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -43,18 +47,21 @@ export async function action({ request }: ActionFunctionArgs) {
     const formData = await request.formData();
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
-    // ユーザーを登録
-    console.log("register user");
+    // サインアップ
     const user = await signUp(email, password);
-    // セッションを保存
+    // サインアップに成功したらホーム画面にリダイレクト
     if (user) {
         const session = await getSession(request.headers.get("Cookie"));
+        // sessionにユーザーIDを保存
         session.set("userId", user.id);
-        return redirect("/", {
-            headers: {
-                "Set-Cookie": await commitSession(session),
-            },
-        });
+
+        // cookieにセッションを保存
+        return redirect("/",
+            {
+                headers: {
+                    "Set-Cookie": await commitSession(session),
+                }
+            });
     }
 }
 
@@ -75,25 +82,23 @@ export default function Login() {
     const { env } = useLoaderData<typeof loader>();
 
     async function onSubmit(formData: FormData) {
-        const supabase = createClient(env.SUPABASE_URL!, env.SUPABASE_ANON_KEY!);
+        // supabaseのクライアントを作成
+        const supabase = createBrowserClient(env.SUPABASE_URL!, env.SUPABASE_ANON_KEY!);
+        // サインアップ
         const { data, error } = await supabase.auth.signUp({
             email: formData.email,
             password: formData.password,
         });
-
+        // エラーがある場合はエラーメッセージを表示
         if (error) {
-            form.setError("email", {
-                type: "manual",
+            form.setError('password', {
+                type: 'manual',
                 message: error.message,
             });
-            return;
         }
-        // データだけ受け取り、サーバーサイドの処理はaction関数で行う
-        try {
-            await submit(formData, { method: 'post' });
-        } catch (error) {
-            console.error("An error occurred during form submission:", error);
-            // Handle the error here, such as displaying an error message to the user
+        // サインアップに成功したらaction関数にデータを渡す
+        if (!error) {
+            submit( formData, { method: 'post' });
         }
     }
 

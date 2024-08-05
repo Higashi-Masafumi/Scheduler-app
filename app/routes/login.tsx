@@ -14,6 +14,7 @@ import {
     FormMessage,
 } from "../components/ui/form";
 import { createBrowserClient } from "@supabase/ssr"
+import { createClient } from "@supabase/supabase-js";
 import { type ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useActionData, useNavigate, useLoaderData, NavLink, useSubmit } from "@remix-run/react";
@@ -77,11 +78,8 @@ export default function Login() {
         },
     });
 
-    const actionData = useActionData<{ error?: string }>();
-    const navigate = useNavigate();
     const { env } = useLoaderData<typeof loader>();
     const submit = useSubmit();
-
 
     // フォームの送信処理
     async function onSubmit(formData: FormData) {
@@ -97,6 +95,18 @@ export default function Login() {
         else {
             submit(formData, { method: "post" });
         }
+    }
+
+    // Googleアカウントでログイン
+    async function signInWithGoogle() {
+        const supabase = createClient(env.SUPABASE_URL!, env.SUPABASE_ANON_KEY!);
+        const google = await supabase.auth.signInWithOAuth({
+            provider: "google",
+        })
+        if (!google) {
+            console.log("Google login failed");
+        }
+        console.log(google);
     }
 
 
@@ -148,6 +158,13 @@ export default function Login() {
                             )}
                         />
                         <Button type="submit" className="w-full">ログイン</Button>
+                        <Button
+                            type="button"
+                            onClick={signInWithGoogle}
+                            className="w-full bg-red-500"
+                        >
+                            Googleアカウントでログイン
+                        </Button>
                         <NavLink to="/signup" className="text-center block text-blue-500">
                             <Button variant="secondary" className="w-full">
                                 アカウントを作成する
