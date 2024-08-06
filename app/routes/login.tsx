@@ -92,6 +92,7 @@ export default function Login() {
             form.setError("password", { message: error.message });
         }
         else {
+            console.log("data", data);
             submit(formData, { method: "post" });
         }
     }

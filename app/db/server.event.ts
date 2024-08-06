@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 // return events user participated in
-export const getEvents = async function (userId: number) {
+export const getEvents = async function (userId: string) {
     const user = await prisma.participants.findMany({
         where: {
             userId
@@ -65,7 +65,7 @@ export const getEvent = async function (eventId: number) {
 }
 
 // return holding events
-export const getHoldingEvents = async function (userId: number) {
+export const getHoldingEvents = async function (userId: string) {
     const user = await prisma.user.findUnique({
         where: {
             id: userId
@@ -80,7 +80,7 @@ export const getHoldingEvents = async function (userId: number) {
 }
 
 // create new event
-export const createEvent = async function (userId: number, data: { title: string, description: string, candidates: string[] }) {
+export const createEvent = async function (userId: string, data: { title: string, description: string, candidates: string[] }) {
     const event = await prisma.events.create({
         data: {
             title: data.title,

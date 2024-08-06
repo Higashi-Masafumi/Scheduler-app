@@ -2,27 +2,30 @@ import { Prisma, PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export const signUp = async function (email: string, password: string) {
-  const user = await prisma.user.create({
-    data: {
-      email,
-      password,
-    },
-  });
-  return user;
-}
+// 新規ユーザー登録、名前と画像URLは任意
+export const signUp = async function (id: string, email: string, name?: string, imageurl?: string) {
+    const newuser = await prisma.user.create({
+        data: {
+        id,
+        email,
+        name,
+        imageurl,
+        },
+    });
+    return newuser;
+    }
 
-export const signIn = async function (email: string, password: string) {
+export const signIn = async function (id: string, email: string) {
     const user = await prisma.user.findUnique({
         where: {
+        id,
         email,
-        password,
         },
     });
     return user;
     }
 
-  export const getUser = async function (id: number) {
+  export const getUser = async function (id: string) {
     const user = await prisma.user.findUnique({
       where: {
         id,
@@ -31,7 +34,7 @@ export const signIn = async function (email: string, password: string) {
     return user;
   }
 
-  export const updateUser = async function (id: number, data: { name: string; bio: string }) {
+  export const updateUser = async function (id: string, data: { name: string; bio: string }) {
     const user = await prisma.user.update({
       where: {
         id,
@@ -42,7 +45,7 @@ export const signIn = async function (email: string, password: string) {
   }
 
   // participate in event
-  export const participateinEvent = async function (userId: number, eventId: number) {
+  export const participateinEvent = async function (userId: string, eventId: number) {
     // まずイベントが存在するかを確認
     const findEvent = await prisma.events.findFirst({
       where: {
