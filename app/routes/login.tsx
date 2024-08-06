@@ -13,8 +13,7 @@ import {
     FormLabel,
     FormMessage,
 } from "../components/ui/form";
-import { createBrowserClient } from "@supabase/ssr"
-import { createClient } from "@supabase/supabase-js";
+import { createBrowserClient } from "@supabase/ssr";
 import { type ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useActionData, useNavigate, useLoaderData, NavLink, useSubmit } from "@remix-run/react";
@@ -99,9 +98,12 @@ export default function Login() {
 
     // Googleアカウントでログイン
     async function signInWithGoogle() {
-        const supabase = createClient(env.SUPABASE_URL!, env.SUPABASE_ANON_KEY!);
+        const supabase = createBrowserClient(env.SUPABASE_URL!, env.SUPABASE_ANON_KEY!);
         const google = await supabase.auth.signInWithOAuth({
             provider: "google",
+            options: {
+                redirectTo: "http://localhost:5173/",
+            }
         })
         if (!google) {
             console.log("Google login failed");

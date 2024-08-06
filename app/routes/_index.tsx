@@ -24,6 +24,13 @@ export const meta: MetaFunction = () => {
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
+  const requestUrl = new URL(request.url);
+  console.log("requestUrl", request);
+  const code = requestUrl.searchParams.get("code");
+  console.log("code", code);
+  const next = requestUrl.searchParams.get("next") || "/";
+  console.log("next", next);
+  const headers = new Headers();
   const session = await getSession(request.headers.get("Cookie"));
   const userId = session.get("userId");
   console.log("userId", userId);
