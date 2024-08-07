@@ -10,6 +10,7 @@ import { Textarea } from '~/components/ui/textarea';
 import { getSession, commitSession } from '~/sessions';
 import { getUser, updateUser } from '~/db/server.user';
 import { useForm } from 'react-hook-form';
+import { useState } from 'react';
 import {
     Form,
     FormControl,
@@ -69,7 +70,7 @@ export default function Profile() {
         },
     });
     const submit = useSubmit();
-    const actionData = useActionData();
+    const [previewImage, setPreviewImage] = useState(userData?.imageurl ?? '');
 
     async function onSubmit(formData: FormData) {
         submit(formData, { method: 'post' });
@@ -83,10 +84,12 @@ export default function Profile() {
                 <Card>
                     <CardHeader>
                         <div className="flex items-center space-x-4">
-                            <Avatar>
-                                <AvatarImage src={userData?.imageurl ?? ''} />
-                                <AvatarFallback>{userData?.name}</AvatarFallback>
-                            </Avatar>
+                            <div>
+                                <Avatar className="w-20 h-20">
+                                    <AvatarImage src={previewImage} />
+                                    <AvatarFallback>{userData?.name}</AvatarFallback>
+                                </Avatar>
+                            </div>
                             <div className="ml-4">
                                 <CardTitle>{userData?.name}</CardTitle>
                                 <CardDescription>{userData?.bio}</CardDescription>
@@ -127,7 +130,24 @@ export default function Profile() {
                                     )}
                                 />
                             </div>
-                            <Button type="submit">保存</Button>
+                            <div className="flex justify-between">
+                                <Button type="submit">保存</Button>
+                                <Input
+                                    type="file"
+                                    className="w-40"
+                                    placeholder="画像を選択"
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            const reader = new FileReader();
+                                            reader.onload = () => {
+                                                setPreviewImage(reader.result as string);
+                                            };
+                                            reader.readAsDataURL(file);
+                                        }
+                                    }}
+                                />
+                            </div>
                         </form>
                     </CardContent>
                 </Card>
