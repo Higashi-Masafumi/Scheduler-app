@@ -46,7 +46,7 @@ export function ErrorBoundary() {
     if (error.status === 500) {
       return <Error500 />;
     }
-    else{
+    else {
       return (
         <div className="flex items-center justify-center w-full h-screen px-4">
           <Card className="max-w-sm mx-auto">
@@ -68,8 +68,26 @@ export function ErrorBoundary() {
       );
     }
   }
-  else{
-    return <Outlet />;
+  else {
+    return (
+      <div className="flex items-center justify-center w-full h-screen px-4">
+        <Card className="max-w-sm mx-auto">
+          <CardHeader>
+            <CardTitle className="text-2xl">不明なエラーが発生しました</CardTitle>
+            <CardDescription>
+              予期せぬエラーが発生しました。しばらくしてから再度お試しください。
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="w-full">
+              <Link to="/">
+                <Button className="w-full">イベント一覧ページに戻る</Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 }
 

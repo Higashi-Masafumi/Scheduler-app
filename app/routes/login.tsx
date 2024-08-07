@@ -3,7 +3,7 @@ import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import {
     Form,
     FormControl,
@@ -13,12 +13,18 @@ import {
     FormLabel,
     FormMessage,
 } from "../components/ui/form";
-import { createBrowserClient } from "@supabase/ssr";
+import { createBrowserClient, createServerClient, parseCookieHeader, serializeCookieHeader } from "@supabase/ssr";
 import { type ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useActionData, useNavigate, useLoaderData, NavLink, useSubmit } from "@remix-run/react";
 import { signIn } from "../db/server.user";
 import { getSession, commitSession } from "~/sessions";
+import {
+    Avatar,
+    AvatarImage
+} from "~/components/ui/avatar";
+import { useState } from "react";
+import { Skeleton } from "../components/ui/skeleton";
 
 // Zod schemaの定義
 const formSchema = z.object({
@@ -39,17 +45,27 @@ export async function loader() {
 }
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-    const formData = await request.formData();
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-    // signupに成功したらホーム画面にリダイレクト
-    const user = await signIn(email, password);
+    const headers = new Headers()
+    console.log("request", request);
+    const supabase = createServerClient(process.env.VITE_SUPABASE_URL!, process.env.VITE_SUPABASE_ANON_KEY!, {
+        cookies: {
+            getAll() {
+                return parseCookieHeader(request.headers.get('Cookie') ?? '')
+            },
+            setAll(cookiesToSet) {
+                cookiesToSet.forEach(({ name, value, options }) =>
+                    headers.append('Set-Cookie', serializeCookieHeader(name, value, options))
+                )
+            },
+        },
+    })
+    const { data: { user } } = await supabase.auth.getUser()
     console.log(user);
     if (user) {
+        const id = user.id as string;
         const session = await getSession(request.headers.get("Cookie"));
         // sessionにユーザーIDを保存
-        session.set("userId", user.id);
-
+        session.set("userId", id);
         console.log("Session data", session.data);
         // cookieにセッションを保存
         return redirect("/",
@@ -60,7 +76,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
             }
         );
     }
-
+    // ログインに失敗した場合はログイン画面にリダイレクト
+    redirect("/login");
 }
 
 // TypeScript用のフォームデータの型定義
@@ -79,15 +96,18 @@ export default function Login() {
 
     const { env } = useLoaderData<typeof loader>();
     const submit = useSubmit();
+    const [loading, setLoading] = useState(false);
 
     // フォームの送信処理
     async function onSubmit(formData: FormData) {
+        setLoading(true);
         const supabase = createBrowserClient(env.SUPABASE_URL!, env.SUPABASE_ANON_KEY!);
-        // Supabaseにユーザーを登録
+        // Supabaseの認証情報を使ってログイン
         const { data, error } = await supabase.auth.signInWithPassword({
             email: formData.email,
             password: formData.password,
         });
+        setLoading(false);
         if (error) {
             form.setError("password", { message: error.message });
         }
@@ -97,19 +117,16 @@ export default function Login() {
         }
     }
 
-    // Googleアカウントでログイン
+    // Googleアカウントでログイン、リダイレクト先でセッションを設定
     async function signInWithGoogle() {
+        setLoading(true);
         const supabase = createBrowserClient(env.SUPABASE_URL!, env.SUPABASE_ANON_KEY!);
         const google = await supabase.auth.signInWithOAuth({
             provider: "google",
             options: {
-                redirectTo: "http://localhost:5173/",
+                redirectTo: "http://localhost:5173/auth/callback",
             }
         })
-        if (!google) {
-            console.log("Google login failed");
-        }
-        console.log(google);
     }
 
 
@@ -122,58 +139,73 @@ export default function Login() {
                 </CardHeader>
                 <CardContent>
                     {/* フォーム全体の構築 */}
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                        <FormField
-                            control={form.control}
-                            name="email"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Email</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            placeholder="shadcn@gmail.com"
-                                            {...field}
-                                            className={form.formState.errors.email ? 'border-red-500' : ''}
-                                        />
-                                    </FormControl>
-                                    <FormDescription>
-                                        メールアドレスを入力してください
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="password"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Password</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            type="password"
-                                            placeholder="password"
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <Button type="submit" className="w-full">ログイン</Button>
-                        <Button
-                            type="button"
-                            onClick={signInWithGoogle}
-                            className="w-full bg-red-500"
-                        >
-                            Googleアカウントでログイン
-                        </Button>
-                        <NavLink to="/signup" className="text-center block text-blue-500">
-                            <Button variant="secondary" className="w-full">
-                                アカウントを作成する
+                    {loading ? (
+                        <div className="w-full max-w-md">
+                            <div className="flex flex-col space-y-3">
+                                <Skeleton className="h-[250px] w-full rounded-xl" />
+                                <div className="space-y-2">
+                                    <Skeleton className="h-4 w-full" />
+                                    <Skeleton className="h-4 w-full" />
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                            <FormField
+                                control={form.control}
+                                name="email"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Email</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                placeholder="shadcn@gmail.com"
+                                                {...field}
+                                                className={form.formState.errors.email ? 'border-red-500' : ''}
+                                            />
+                                        </FormControl>
+                                        <FormDescription>
+                                            メールアドレスを入力してください
+                                        </FormDescription>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="password"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Password</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="password"
+                                                placeholder="password"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <Button type="submit" className="w-full">ログイン</Button>
+                            <Button
+                                variant="outline"
+                                className="w-full flex items-center justify-center py-2"
+                                onClick={signInWithGoogle}
+                            >
+                                <Avatar className="py-2 mr-2">
+                                    <AvatarImage src="https://www.svgrepo.com/show/475656/google-color.svg" alt="google logo" style={{ height: '24px', width: '24px' }} />
+                                </Avatar>
+                                <span>Googleでログイン</span>
                             </Button>
-                        </NavLink>
-                    </form>
+                            <NavLink to="/signup" className="text-center block text-blue-500">
+                                <Button variant="secondary" className="w-full">
+                                    アカウントを作成する
+                                </Button>
+                            </NavLink>
+                        </form>
+                    )}
                 </CardContent>
             </Card>
         </Form>

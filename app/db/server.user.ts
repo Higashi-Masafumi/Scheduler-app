@@ -4,6 +4,17 @@ const prisma = new PrismaClient();
 
 // 新規ユーザー登録、名前と画像URLは任意
 export const signUp = async function (id: string, email: string, name?: string, imageurl?: string) {
+    // すでにユーザーが存在するかを確認して存在する場合はそのユーザーを返す
+    const findUser = await prisma.user.findUnique({
+        where: {
+        id,
+        email,
+        },
+    });  
+    if(findUser) {
+        return findUser;
+    }
+    // ユーザーが存在しない場合、新規ユーザーを作成して返す
     const newuser = await prisma.user.create({
         data: {
         id,
