@@ -74,7 +74,7 @@ export const action = async ({ request, params }: LoaderFunctionArgs) => {
 
 type Participant = {
     id: number;
-    userId: number;
+    userId: string;
     name: string;
     remarks: string;
     abscence: string[];
@@ -111,8 +111,10 @@ export default function EventTable() {
             header: () => (
                 <TooltipProvider>
                     <Tooltip>
-                        <TooltipTrigger>
-                            <Button variant="link">{new Date(candidate).toLocaleString()}</Button>
+                        <TooltipTrigger asChild>
+                            <Button type="button" variant="link">
+                                {new Date(candidate).toLocaleString()}
+                            </Button>
                         </TooltipTrigger>
                         <TooltipContent>
                             <h3>出席可能な参加者</h3>

@@ -19,6 +19,12 @@ import {
     FormLabel,
     FormMessage,
 } from "../components/ui/form";
+import {
+    Avatar,
+    AvatarImage,
+    AvatarFallback
+} from "~/components/ui/avatar";
+
 
 // Zod schemaの定義
 const formSchema = z.object({
@@ -51,14 +57,10 @@ export const action: ActionFunction = async ({ request }: ActionFunctionArgs) =>
 };
 
 type FormData = z.infer<typeof formSchema>;
-type userData = {
-    name: string;
-    bio: string;
-};
 
 export default function Profile() {
 
-    const userData: userData = useLoaderData();
+    const userData = useLoaderData<typeof loader>();
     const form = useForm<FormData>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -80,8 +82,16 @@ export default function Profile() {
                 </div>
                 <Card>
                     <CardHeader>
-                        <CardTitle>{userData.name}</CardTitle>
-                        <CardDescription>{userData.bio}</CardDescription>
+                        <div className="flex items-center space-x-4">
+                            <Avatar>
+                                <AvatarImage src={userData?.imageurl ?? ''} />
+                                <AvatarFallback>{userData?.name}</AvatarFallback>
+                            </Avatar>
+                            <div className="ml-4">
+                                <CardTitle>{userData?.name}</CardTitle>
+                                <CardDescription>{userData?.bio}</CardDescription>
+                            </div>
+                        </div>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={form.handleSubmit(onSubmit)}>
