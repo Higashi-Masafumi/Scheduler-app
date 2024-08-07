@@ -39,7 +39,7 @@ import { ScrollArea, ScrollBar } from "../components/ui/scroll-area";
 
 // Zod schemaの定義
 const formSchema = z.object({
-    abscence: z.array(z.string()),
+    abscence: z.array(z.string().min(0, { message: '出席情報を入力してください' })),
     remarks: z.string().min(0, { message: '備考を入力してください' }),
 });
 
@@ -95,6 +95,7 @@ export default function EventTable() {
 
     async function onSubmit(data: FormData) {
         const formData = new FormData();
+        console.log(data);
         formData.append('participantId', String(user?.id));
         formData.append('abscence', JSON.stringify(data.abscence));
         formData.append('remarks', data.remarks);
@@ -138,9 +139,10 @@ export default function EventTable() {
                                     <Select onValueChange={field.onChange} value={field.value}>
                                         <FormControl>
                                             <SelectTrigger>
-                                                <SelectValue>{field.value}</SelectValue>
+                                                <SelectValue placeholder="選択してください" />
                                             </SelectTrigger>
                                         </FormControl>
+                                        <FormMessage />
                                         <SelectContent>
                                             <SelectItem value="出席">出席</SelectItem>
                                             <SelectItem value="欠席">欠席</SelectItem>
