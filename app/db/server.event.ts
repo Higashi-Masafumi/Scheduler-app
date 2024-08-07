@@ -53,6 +53,7 @@ export const getEvent = async function (eventId: number) {
             id: schedule.id,
             userId: schedule.user.id,
             name: schedule.user.name,
+            imageurl: schedule.user.imageurl,
             abscence: schedule.abscence,
             remarks: schedule.remarks
         }

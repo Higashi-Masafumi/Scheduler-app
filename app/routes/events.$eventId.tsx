@@ -35,6 +35,11 @@ import {
 } from "../components/ui/tooltip";
 import { Input } from "../components/ui/input";
 import { ScrollArea, ScrollBar } from "../components/ui/scroll-area";
+import {
+    Avatar,
+    AvatarImage,
+    AvatarFallback
+} from "~/components/ui/avatar";
 
 
 // Zod schemaの定義
@@ -76,6 +81,7 @@ type Participant = {
     id: number;
     userId: string;
     name: string;
+    imageurl: string;
     remarks: string;
     abscence: string[];
 }
@@ -106,6 +112,19 @@ export default function EventTable() {
         {
             accessorKey: "name",
             header: "名前",
+
+
+            cell: ({ row }) => {
+                return (
+                    <div className="flex items-center space-x-4">
+                        <Avatar>
+                            <AvatarImage src={row.original.imageurl} alt={row.original.name} />
+                            <AvatarFallback>{row.original.name}</AvatarFallback>
+                        </Avatar>
+                        <span>{row.original.name}</span>
+                    </div>
+                );
+            },
         },
         ...(event.candidates ?? []).map((candidate, index) => ({
             accessorKey: `absence.${index}`,
@@ -155,7 +174,7 @@ export default function EventTable() {
                     );
                 }
                 else {
-                    return <span>{participant.abscence[index]}</span>
+                    return <span>{participant.abscence[index] ?? "未選択"}</span>
                 }
             },
         })),
@@ -172,7 +191,7 @@ export default function EventTable() {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormControl>
-                                        <Input {...field} className="min-w-80"/>
+                                        <Input {...field} className="min-w-80" />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
