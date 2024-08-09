@@ -45,7 +45,7 @@ export const signIn = async function (id: string, email: string) {
     return user;
   }
 
-  export const updateUser = async function (id: string, data: { name: string; bio: string }) {
+  export const updateUser = async function (id: string, data: { name?: string; bio?: string, imageurl?: string }) {
     const user = await prisma.user.update({
       where: {
         id,

@@ -10,7 +10,8 @@ import { Textarea } from '~/components/ui/textarea';
 import { getSession, commitSession } from '~/sessions';
 import { getUser, updateUser } from '~/db/server.user';
 import { useForm } from 'react-hook-form';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { createBrowserClient } from '@supabase/ssr'
 import {
     Form,
     FormControl,
@@ -25,18 +26,20 @@ import {
     AvatarImage,
     AvatarFallback
 } from "~/components/ui/avatar";
+import { ToastAction } from "~/components/ui/toast"
+import { useToast } from "~/components/ui/use-toast"
 
 
 // Zod schemaの定義
 const formSchema = z.object({
-    name: z.string().min(1, { message: '名前を入力してください' }),
-    bio: z.string().min(0, { message: '自己紹介を入力してください' }),
+    name: z.string().optional(),
+    bio: z.string().optional(),
+    avatar: z.string().optional(),
 });
 
 export async function loader({ request }: LoaderFunctionArgs) {
     const session = await getSession(request.headers.get('Cookie'));
     const user = session.get('userId');
-
     console.log('session', user);
     // ユーザーがログインしていない場合はログイン画面にリダイレクト
     if (!user) {
@@ -44,16 +47,37 @@ export async function loader({ request }: LoaderFunctionArgs) {
         return redirect('/login');
     }
     const userData = await getUser(user);
-    return userData;
+    const env = {
+        SUPABASE_URL: process.env.VITE_SUPABASE_URL!,
+        SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY!,
+        SUPABASE_STORAGE_BUCKET: process.env.VITE_SUPABASE_STORAGE_BUCKET!,
+    };
+    return { userData, env };
 }
 
 export const action: ActionFunction = async ({ request }: ActionFunctionArgs) => {
+    const headers = new Headers()
     const session = await getSession(request.headers.get('Cookie'));
     const user = session.get('userId');
     const formData = await request.formData();
     const name = formData.get('name') as string;
     const bio = formData.get('bio') as string;
-    await updateUser(user, { name, bio });
+    const avatar = formData.get('avatar') as string;
+    const updateData : {name?: string, bio?: string, imageurl?: string} = {};
+    if (name) {
+        updateData.name = name;
+    }
+    if (bio) {
+        updateData.bio = bio;
+    }
+    if (avatar) {
+        updateData.imageurl = avatar;
+    }
+    console.log('updateData', updateData);
+    const updatedUser = await updateUser(user, updateData);
+    if (!updatedUser) {
+        return redirect('/profile');
+    }
     return redirect('/');
 };
 
@@ -61,7 +85,8 @@ type FormData = z.infer<typeof formSchema>;
 
 export default function Profile() {
 
-    const userData = useLoaderData<typeof loader>();
+    const { userData } = useLoaderData<typeof loader>();
+    const { env } = useLoaderData<typeof loader>();
     const form = useForm<FormData>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -69,12 +94,54 @@ export default function Profile() {
             bio: "",
         },
     });
+    const { toast } = useToast();
     const submit = useSubmit();
     const [previewImage, setPreviewImage] = useState(userData?.imageurl ?? '');
+    const fileInput = useRef<HTMLInputElement | null>(null);
 
     async function onSubmit(formData: FormData) {
-        submit(formData, { method: 'post' });
+        const data = new FormData();
+        formData.name && data.append('name', formData.name);
+        formData.bio && data.append('bio', formData.bio);
+        formData.avatar && data.append('avatar', formData.avatar);
+        submit(data, { method: 'post' });
     }
+
+    async function handleAvatarChange() {
+        const file = fileInput.current?.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                setPreviewImage(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+            const supabase = createBrowserClient(env.SUPABASE_URL!, env.SUPABASE_ANON_KEY!);
+            console.log(file);
+            console.log(file.name);
+            const { data, error } = await supabase.storage.from('avatar').upload(`${userData?.id}/${file.name}`, file, {upsert: true});
+            console.log(data);
+            console.log(error);
+            if (error) {
+                toast({
+                    title: 'エラー',
+                    description: '画像のアップロードに失敗しました',
+                    action: <ToastAction altText="閉じる">閉じる</ToastAction>
+                });
+                return;
+            }
+            toast({
+                title: '成功',
+                description: '画像をアップロードしました',
+                action: <ToastAction altText="閉じる">閉じる</ToastAction>
+            });
+            // 成功した場合は公開URLを取得
+            const { data: publicUrl } = await supabase.storage.from("avatar").getPublicUrl(`${userData?.id}/${file.name}`);
+            console.log(publicUrl);
+            // 公開URLをデータベースに保存
+            form.setValue('avatar', publicUrl.publicUrl);
+        }
+    }
+
     return (
         <Form {...form}>
             <div className="space-y-10 px-5 py-5">
@@ -85,10 +152,14 @@ export default function Profile() {
                     <CardHeader>
                         <div className="flex items-center space-x-4">
                             <div>
-                                <Avatar className="w-20 h-20">
+                                <Avatar
+                                    className="w-20 h-20"
+                                    onClick={() => fileInput.current?.click()}
+                                >
                                     <AvatarImage src={previewImage} />
                                     <AvatarFallback>{userData?.name}</AvatarFallback>
                                 </Avatar>
+                                <Input type="file" ref={fileInput} onChange={handleAvatarChange} className="hidden" />
                             </div>
                             <div className="ml-4">
                                 <CardTitle>{userData?.name}</CardTitle>
@@ -130,24 +201,7 @@ export default function Profile() {
                                     )}
                                 />
                             </div>
-                            <div className="flex justify-between">
-                                <Button type="submit">保存</Button>
-                                <Input
-                                    type="file"
-                                    className="w-40"
-                                    placeholder="画像を選択"
-                                    onChange={(e) => {
-                                        const file = e.target.files?.[0];
-                                        if (file) {
-                                            const reader = new FileReader();
-                                            reader.onload = () => {
-                                                setPreviewImage(reader.result as string);
-                                            };
-                                            reader.readAsDataURL(file);
-                                        }
-                                    }}
-                                />
-                            </div>
+                            <Button type="submit">保存</Button>
                         </form>
                     </CardContent>
                 </Card>
@@ -155,5 +209,6 @@ export default function Profile() {
         </Form>
     );
 }
+
 
 
