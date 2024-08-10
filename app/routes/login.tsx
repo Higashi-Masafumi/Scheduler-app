@@ -204,6 +204,10 @@ export default function Login() {
                                     アカウントを作成する
                                 </Button>
                             </NavLink>
+                            {/*パスワードのリセットページへのリンク*/}
+                            <NavLink to="/reset-password" className="text-center block text-blue-500">
+                                パスワードを忘れた場合
+                            </NavLink>
                         </form>
                     )}
                 </CardContent>

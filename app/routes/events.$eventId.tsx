@@ -134,8 +134,6 @@ export default function EventTable() {
         {
             accessorKey: "name",
             header: "名前",
-
-
             cell: ({ row }) => {
                 return (
                     <div className="flex items-center space-x-4">

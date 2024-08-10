@@ -16,6 +16,9 @@ import {
   TableRow,
 } from "../components/ui/table"
 
+import { useState } from "react"
+
+// column pinning
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
@@ -25,6 +28,7 @@ export function DataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
+
   const table = useReactTable({
     data,
     columns,
