@@ -99,6 +99,28 @@ export default function EventTable() {
     });
     const submit = useSubmit();
 
+    function formatCandidateDate(candidate: string): string {
+        const date = new Date(candidate);
+
+        // 日本語ロケールでの曜日を含む日付のフォーマット
+        const formattedDate = date.toLocaleDateString('ja-JP', {
+            month: 'long',   // "8月"
+            day: 'numeric',  // "16日"
+            weekday: 'short' // "(木)"
+        });
+
+        // 時間のフォーマット
+        const formattedTime = date.toLocaleTimeString('ja-JP', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false // 24時間表記
+        });
+
+        // 最終的なフォーマットの組み合わせ
+        return `${formattedDate}\n ${formattedTime}~`;
+    }
+
+
     async function onSubmit(data: FormData) {
         const formData = new FormData();
         console.log(data);
@@ -133,7 +155,7 @@ export default function EventTable() {
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <Button type="button" variant="link">
-                                {new Date(candidate).toLocaleString()}
+                                {formatCandidateDate(candidate)}
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent>
