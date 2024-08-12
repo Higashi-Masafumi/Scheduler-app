@@ -40,6 +40,17 @@ import {
     AvatarImage,
     AvatarFallback
 } from "~/components/ui/avatar";
+import {
+    Sheet,
+    SheetContent,
+    SheetFooter,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from "~/components/ui/sheet";
+
+import { getChat, postChat } from '~/db/server.chat';
+
 
 
 // Zod schemaの定義
@@ -47,8 +58,12 @@ const formSchema = z.object({
     abscence: z.array(z.string().min(0, { message: '出席情報を入力してください' })),
     remarks: z.string().min(0, { message: '備考を入力してください' }),
 });
+const chatSchema = z.object({
+    message: z.string().min(1, { message: 'メッセージを入力してください' }),
+});
 
 type FormData = z.infer<typeof formSchema>;
+type ChatData = z.infer<typeof chatSchema>;
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     const session = await getSession(request.headers.get('Cookie'));
@@ -64,6 +79,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
         throw new Response("Event not found", { status: 500 });
     }
     const event = await getEvent(Number(eventId));
+    const chat = await getChat(Number(eventId));
     return { event, userId };
 };
 
@@ -228,22 +244,39 @@ export default function EventTable() {
 
 
     return (
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-                <div className="container mx-auto py-10 px-5">
-                    <div className="flex justify-between items-center mb-8">
-                        <h1 className="text-4xl font-extrabold">{event.title}</h1>
-                    </div>
-                    <div className="mb-8">
-                        <p className="text-gray-600 text-lg">{event.description}</p>
-                    </div>
+        <div className="container mx-auto py-10 px-5">
+            <div className="flex justify-between items-center mb-8">
+                <h1 className="text-4xl font-extrabold">{event.title}</h1>
+                <Sheet>
+                    <SheetTrigger asChild>
+                        <Button>このイベントに関するチャット</Button>
+                    </SheetTrigger>
+                    <SheetContent>
+                        <SheetHeader>
+                            <SheetTitle>チャット</SheetTitle>
+                        </SheetHeader>
+                        <SheetContent>
+                            <ScrollArea className="h-96">
+
+                            </ScrollArea>
+                        </SheetContent>
+                        <SheetFooter>
+                        </SheetFooter>
+                    </SheetContent>
+                </Sheet>
+            </div>
+            <div className="mb-8">
+                <p className="text-gray-600 text-lg">{event.description}</p>
+            </div>
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)}>
                     <ScrollArea className="mx-auto w-auto">
                         <DataTable columns={columns} data={participants} />
                         <ScrollBar orientation="horizontal" />
                     </ScrollArea>
                     <Button type="submit" className="mt-8">出席情報を更新する</Button>
-                </div>
-            </form>
-        </Form>
+                </form>
+            </Form>
+        </div>
     );
 }

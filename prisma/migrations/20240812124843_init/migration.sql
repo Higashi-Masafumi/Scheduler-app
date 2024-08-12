@@ -35,8 +35,22 @@ CREATE TABLE "public"."Participants" (
     CONSTRAINT "Participants_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "public"."Chats" (
+    "id" SERIAL NOT NULL,
+    "eventId" INTEGER NOT NULL,
+    "userId" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Chats_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "auth"."User"("email");
+
+-- CreateIndex
+CREATE INDEX "Chats_eventId_idx" ON "public"."Chats"("eventId");
 
 -- AddForeignKey
 ALTER TABLE "public"."Events" ADD CONSTRAINT "Events_holderId_fkey" FOREIGN KEY ("holderId") REFERENCES "auth"."User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -46,3 +60,9 @@ ALTER TABLE "public"."Participants" ADD CONSTRAINT "Participants_eventId_fkey" F
 
 -- AddForeignKey
 ALTER TABLE "public"."Participants" ADD CONSTRAINT "Participants_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth"."User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."Chats" ADD CONSTRAINT "Chats_eventId_fkey" FOREIGN KEY ("eventId") REFERENCES "public"."Events"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."Chats" ADD CONSTRAINT "Chats_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth"."User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

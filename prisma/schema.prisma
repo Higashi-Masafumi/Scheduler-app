@@ -24,6 +24,7 @@ model User {
   imageurl       String?         
   holdingEvents  Events[]
   EventSchedules Participants[]
+  chats          Chats[]
   @@schema("auth")
 }
 
@@ -36,6 +37,7 @@ model Events {
   candidates     DateTime[]
   holder         User           @relation(fields: [holderId], references: [id])
   eventSchedules Participants[]
+  chats          Chats[]
 
   @@schema("public")
 }
@@ -50,4 +52,17 @@ model Participants {
   user     User     @relation(fields: [userId], references: [id])
 
   @@schema("public")
+}
+
+model Chats {
+  id        Int      @id @default(autoincrement())
+  eventId   Int
+  userId    String
+  message   String
+  createdAt DateTime @default(now())
+  event     Events   @relation(fields: [eventId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@schema("public")
+  @@index([eventId])
 }
