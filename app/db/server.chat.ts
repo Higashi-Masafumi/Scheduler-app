@@ -24,5 +24,15 @@ export const getChat = async function (eventId: number) {
             user: true
         }
     });
-    return chats;
+    // username, imageurl, message, createdAt
+    const chatData = chats.map(chat => {
+        return {
+            userId: chat.userId,
+            username: chat.user.name,
+            imageurl: chat.user.imageurl,
+            message: chat.message,
+            createdAt: chat.createdAt
+        }
+    });
+    return chatData;
 }

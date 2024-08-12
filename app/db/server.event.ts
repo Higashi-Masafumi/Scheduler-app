@@ -105,7 +105,7 @@ export const withdrawEvent = async function (id: number) {
 
 // update abscence
 export const updateAbscence = async function (participantId: number, abscence: string[], remarks: string) {
-    await prisma.participants.update({
+    const newabscence = await prisma.participants.update({
         where: {
             id: participantId
         },
@@ -114,6 +114,7 @@ export const updateAbscence = async function (participantId: number, abscence: s
             remarks
         }
     });
+   return newabscence;
 }
 
 // delete event

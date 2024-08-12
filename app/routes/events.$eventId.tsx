@@ -43,12 +43,14 @@ import {
 import {
     Sheet,
     SheetContent,
+    SheetDescription,
     SheetFooter,
     SheetHeader,
     SheetTitle,
     SheetTrigger,
 } from "~/components/ui/sheet";
-
+import { Separator } from "~/components/ui/separator";
+import { OtherChatBubble, OwnChatBubble } from "~/components/chat";
 import { getChat, postChat } from '~/db/server.chat';
 
 
@@ -71,7 +73,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     if (!userId) {
         return redirect('/login');
     }
-    const eventId = params.eventId;
+    const eventId = Number(params.eventId);
     // イベントが存在するか確認して、存在する場合で参加していない時に参加する
     const res = await participateinEvent(userId, Number(eventId));
     // イベントが見つからなかった場合、エラーを返す
@@ -79,18 +81,36 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
         throw new Response("Event not found", { status: 500 });
     }
     const event = await getEvent(Number(eventId));
+    console.log(event);
     const chat = await getChat(Number(eventId));
-    return { event, userId };
+    console.log(chat);
+    return { event, userId, chat, eventId };
 };
 
 export const action = async ({ request, params }: LoaderFunctionArgs) => {
     const session = await getSession(request.headers.get('Cookie'));
     const formData = await request.formData();
-    const participantId = Number(formData.get('participantId'));
-    const abscence = JSON.parse(formData.get('abscence') as string);
-    const remarks = formData.get('remarks') as string;
-    await updateAbscence(participantId, abscence, remarks);
-    return redirect('/events');
+    if (formData.get('abscence')){
+        const participantId = Number(formData.get('participantId'));
+        const abscence = JSON.parse(formData.get('abscence') as string);
+        const remarks = formData.get('remarks') as string;
+        const newabscence = await updateAbscence(participantId, abscence, remarks);  
+        console.log(newabscence);
+        if (newabscence) {
+            return redirect(`/`);
+        }
+    }
+    if (formData.get('message')) {
+        const eventId = Number(params.eventId);
+        const userId = session.get('userId');
+        const message = formData.get('message') as string;
+        const post = await postChat(eventId, userId, message);
+        console.log(post);
+        if (post) {
+            return redirect(`/events/${params.eventId}`);
+        }
+    }
+    return redirect(`/events/${params.eventId}`);
 }
 
 type Participant = {
@@ -103,7 +123,7 @@ type Participant = {
 }
 
 export default function EventTable() {
-    const { event, userId } = useLoaderData<typeof loader>();
+    const { event, userId, chat, eventId } = useLoaderData<typeof loader>();
     const participants = event.participants as Participant[];
     const user = participants.find(participant => participant.userId === userId);
     const form = useForm<FormData>({
@@ -112,6 +132,12 @@ export default function EventTable() {
             abscence: user?.abscence ?? [],
             remarks: user?.remarks ?? '',
         },
+    });
+    const chatForm = useForm<ChatData>({
+        resolver: zodResolver(chatSchema),
+        defaultValues: {
+            message: '',
+        }
     });
     const submit = useSubmit();
 
@@ -134,6 +160,33 @@ export default function EventTable() {
 
         // 最終的なフォーマットの組み合わせ
         return `${formattedDate}\n ${formattedTime}~`;
+    }
+
+    // chatの作成日時のフォーマット
+    function formatChatDate(date: string): string {
+        const formattedDate = new Date(date).toLocaleString('ja-JP', {
+            month: 'numeric',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+        });
+        return formattedDate;
+    }
+    // chatデータをフォーマットしておく
+    const formattedChat = chat.map(chat => {
+        return {
+            ...chat,
+            createdAt: formatChatDate(chat.createdAt)
+        }
+    });
+
+    // chatの投稿処理
+    async function onChatSubmit(data: ChatData) {
+        const message = data.message;
+        const postChat = { eventId, userId, message };
+        submit(postChat, { method: 'POST' });
+        // formのリセット
+        chatForm.reset();
     }
 
 
@@ -249,18 +302,47 @@ export default function EventTable() {
                 <h1 className="text-4xl font-extrabold">{event.title}</h1>
                 <Sheet>
                     <SheetTrigger asChild>
-                        <Button>このイベントに関するチャット</Button>
+                        <Button>チャット</Button>
                     </SheetTrigger>
-                    <SheetContent>
-                        <SheetHeader>
-                            <SheetTitle>チャット</SheetTitle>
+                    <SheetContent className="w-[300px] sm:w-[500px]">
+                        <SheetHeader className="py-3">
+                            <SheetTitle>{event.title}</SheetTitle>
+                            <SheetDescription>新規チャットを取得するには定期的に画面を更新してください</SheetDescription>
                         </SheetHeader>
-                        <SheetContent>
-                            <ScrollArea className="h-96">
-
+                        <Separator />
+                        <div className="grid gap-4 py-4">
+                            <ScrollArea className="h-[600px] sm:h-[500px]">
+                                {formattedChat.map(chat => {
+                                    if (chat.userId === userId) {
+                                        return <OwnChatBubble key={chat.createdAt} avatar={chat.imageurl} username={chat.username} message={chat.message} createdAt={chat.createdAt} />
+                                    }
+                                    else {
+                                        return <OtherChatBubble key={chat.createdAt} avatar={chat.imageurl} username={chat.username} message={chat.message} createdAt={chat.createdAt} />
+                                    }
+                                })}
+                                <ScrollBar orientation="vertical" />
                             </ScrollArea>
-                        </SheetContent>
-                        <SheetFooter>
+                        </div>
+                        <Separator />
+                        <SheetFooter className="mt-4">
+                            <Form {...chatForm}>
+                                <form onSubmit={chatForm.handleSubmit(onChatSubmit)}>
+                                    <div className="flex items-center">
+                                        <FormField
+                                            control={chatForm.control}
+                                            name="message"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormControl>
+                                                        <Input {...field} placeholder="メッセージを入力" className="w-[200px] sm:[300px] mr-2" />
+                                                    </FormControl>
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <Button type="submit" className="px-3">送信</Button>
+                                    </div>
+                                </form>
+                            </Form>
                         </SheetFooter>
                     </SheetContent>
                 </Sheet>

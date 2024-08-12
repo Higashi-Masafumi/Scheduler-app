@@ -21,7 +21,7 @@ model User {
   name           String         @default("anoymous") @db.VarChar(30)
   bio            String?
   email          String         @unique
-  imageurl       String?         
+  imageurl       String?        @default("../anonymous-avatar.jpg")
   holdingEvents  Events[]
   EventSchedules Participants[]
   chats          Chats[]
