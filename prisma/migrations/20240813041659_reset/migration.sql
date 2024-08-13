@@ -7,7 +7,7 @@ CREATE TABLE "auth"."User" (
     "name" VARCHAR(30) NOT NULL DEFAULT 'anoymous',
     "bio" TEXT,
     "email" TEXT NOT NULL,
-    "imageurl" TEXT,
+    "imageurl" TEXT DEFAULT '../anonymous-avatar.jpg',
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -40,7 +40,7 @@ CREATE TABLE "public"."Chats" (
     "id" SERIAL NOT NULL,
     "eventId" INTEGER NOT NULL,
     "userId" TEXT NOT NULL,
-    "content" TEXT NOT NULL,
+    "message" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Chats_pkey" PRIMARY KEY ("id")

@@ -52,8 +52,11 @@ import {
 import { Separator } from "~/components/ui/separator";
 import { OtherChatBubble, OwnChatBubble } from "~/components/chat";
 import { getChat, postChat } from '~/db/server.chat';
-
-
+import { createBrowserClient } from '@supabase/ssr';
+import { useRevalidator, useNavigate } from '@remix-run/react';
+import { toast } from '~/components/ui/use-toast';
+import { useToast } from '~/components/ui/use-toast';
+import { useEffect } from 'react';
 
 // Zod schemaの定義
 const formSchema = z.object({
@@ -84,17 +87,22 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     console.log(event);
     const chat = await getChat(Number(eventId));
     console.log(chat);
-    return { event, userId, chat, eventId };
+    const env = {
+        SUPABASE_URL: process.env.VITE_SUPABASE_URL!,
+        SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY!,
+        SUPABASE_STORAGE_BUCKET: process.env.VITE_SUPABASE_STORAGE_BUCKET!,
+    };
+    return { event, userId, chat, eventId, env };
 };
 
 export const action = async ({ request, params }: LoaderFunctionArgs) => {
     const session = await getSession(request.headers.get('Cookie'));
     const formData = await request.formData();
-    if (formData.get('abscence')){
+    if (formData.get('abscence')) {
         const participantId = Number(formData.get('participantId'));
         const abscence = JSON.parse(formData.get('abscence') as string);
         const remarks = formData.get('remarks') as string;
-        const newabscence = await updateAbscence(participantId, abscence, remarks);  
+        const newabscence = await updateAbscence(participantId, abscence, remarks);
         console.log(newabscence);
         if (newabscence) {
             return redirect(`/`);
@@ -123,7 +131,7 @@ type Participant = {
 }
 
 export default function EventTable() {
-    const { event, userId, chat, eventId } = useLoaderData<typeof loader>();
+    const { event, userId, chat, eventId, env } = useLoaderData<typeof loader>();
     const participants = event.participants as Participant[];
     const user = participants.find(participant => participant.userId === userId);
     const form = useForm<FormData>({
@@ -140,6 +148,26 @@ export default function EventTable() {
         }
     });
     const submit = useSubmit();
+    const revalidator = useRevalidator();
+    const navigate = useNavigate();
+    const supabase = createBrowserClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
+
+
+    useEffect(() => {
+        const channel = supabase.channel('realtime chats').on('postgres_changes', {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'Chats',
+        }, (payload) => {
+            console.log("payload", payload);
+        }).subscribe()
+        return () => {
+            supabase.removeChannel(channel)
+        }
+    }, [supabase]);
+
+
+
 
     function formatCandidateDate(candidate: string): string {
         const date = new Date(candidate);
@@ -176,7 +204,7 @@ export default function EventTable() {
     const formattedChat = chat.map(chat => {
         return {
             ...chat,
-            createdAt: formatChatDate(chat.createdAt)
+            createdAt_format: formatChatDate(chat.createdAt)
         }
     });
 
@@ -304,20 +332,20 @@ export default function EventTable() {
                     <SheetTrigger asChild>
                         <Button>チャット</Button>
                     </SheetTrigger>
-                    <SheetContent className="w-[300px] sm:w-[500px]">
+                    <SheetContent className="w-[350px] sm:w-[600px]">
                         <SheetHeader className="py-3">
                             <SheetTitle>{event.title}</SheetTitle>
-                            <SheetDescription>新規チャットを取得するには定期的に画面を更新してください</SheetDescription>
+                            <SheetDescription>新規チャットがあっても自動的にはスクロールされません。</SheetDescription>
                         </SheetHeader>
                         <Separator />
                         <div className="grid gap-4 py-4">
-                            <ScrollArea className="h-[600px] sm:h-[500px]">
+                            <ScrollArea className="h-[500px] sm:h-[550px]">
                                 {formattedChat.map(chat => {
                                     if (chat.userId === userId) {
-                                        return <OwnChatBubble key={chat.createdAt} avatar={chat.imageurl} username={chat.username} message={chat.message} createdAt={chat.createdAt} />
+                                        return <OwnChatBubble key={chat.createdAt} avatar={chat.imageurl} username={chat.username} message={chat.message} createdAt={chat.createdAt_format} />
                                     }
                                     else {
-                                        return <OtherChatBubble key={chat.createdAt} avatar={chat.imageurl} username={chat.username} message={chat.message} createdAt={chat.createdAt} />
+                                        return <OtherChatBubble key={chat.createdAt} avatar={chat.imageurl} username={chat.username} message={chat.message} createdAt={chat.createdAt_format} />
                                     }
                                 })}
                                 <ScrollBar orientation="vertical" />
@@ -334,7 +362,7 @@ export default function EventTable() {
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormControl>
-                                                        <Input {...field} placeholder="メッセージを入力" className="w-[200px] sm:[300px] mr-2" />
+                                                        <Input {...field} placeholder="メッセージを入力" className="w-[250px] sm:w-[270px] mr-2" />
                                                     </FormControl>
                                                 </FormItem>
                                             )}
