@@ -146,12 +146,12 @@ export default function Profile() {
         <Form {...form}>
             <div className="space-y-10 px-5 py-5">
                 <div className="flex justify-between pt-5">
-                    <h1 className="text-4xl font-bold">プロフィール編集画面</h1>
+                    <h1 className="text-3xl font-bold">プロフィール編集画面</h1>
                 </div>
                 <Card>
                     <CardHeader>
                         <div className="flex items-center space-x-4">
-                            <div>
+                            <div className="grid-cols-2 whitespace-normal">
                                 <Avatar
                                     className="w-20 h-20"
                                     onClick={() => fileInput.current?.click()}
@@ -159,9 +159,10 @@ export default function Profile() {
                                     <AvatarImage src={previewImage} />
                                     <AvatarFallback>{userData?.name}</AvatarFallback>
                                 </Avatar>
+                                <span className="text-sm place-items-center">画像を変更</span>
                                 <Input type="file" ref={fileInput} onChange={handleAvatarChange} className="hidden" />
                             </div>
-                            <div className="ml-4">
+                            <div className="grid-cols-2 gap-2">
                                 <CardTitle>{userData?.name}</CardTitle>
                                 <CardDescription>{userData?.bio}</CardDescription>
                             </div>
