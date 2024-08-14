@@ -45,8 +45,9 @@ export async function action({ request }: ActionFunctionArgs) {
     console.log(candidates);
     const newevent = await createEvent(user, { title, description, candidates });
     if (newevent) {
-        return redirect('/events');
+        return redirect(`/events/${newevent.id}`);
     }
+    return redirect('/new-events');
 }
 
 // イベント作成ページ
@@ -87,6 +88,8 @@ export default function NewEvents() {
                 return;
             }
         }
+        // 候補日程をソートしておく
+        candidates.sort();
         await submit(formDataWithCandidates, { method: 'post' });
     };
 
@@ -94,7 +97,7 @@ export default function NewEvents() {
         <Form {...form}>
             <div className="space-y-6 py-10 px-10">
                 <div className="space-y-2">
-                    <h1 className="text-2xl font-bold tracking-wide md:text-3xl">イベント作成</h1>
+                    <h1 className="text-3xl font-bold tracking-wide md:text-3xl">新規イベント作成</h1>
                 </div>
                 <div className="space-y-6">
                     <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -129,7 +132,7 @@ export default function NewEvents() {
                             />
                         </div>
                         <div className="flex items-center space-y-4 my-4">
-                            <Label className="whitespace-nowrap mr-3">候補日時選択</Label>
+                            <Label className="whitespace-nowrap mr-3">候補日程追加</Label>
                             <Input
                                 type="datetime-local"
                                 onChange={(e) => setCandidates([...candidates, e.target.value])}
@@ -139,7 +142,7 @@ export default function NewEvents() {
                                 className="ml-4">追加</Button>
                         </div>
                         <div className="space-y-2 my-4">
-                            <Label>候補日時一覧</Label>
+                            <Label>選択済み候補日程一覧</Label>
                             <ul className="space-y-2">
                                 {candidates.map((candidate, index) => (
                                     <li key={index} className="flex items-center space-x-2">
@@ -149,6 +152,8 @@ export default function NewEvents() {
                                             onChange={(e) => {
                                                 const newCandidates = [...candidates];
                                                 newCandidates[index] = e.target.value;
+                                                // 候補日時をソート
+                                                newCandidates.sort();
                                                 setCandidates(newCandidates);
                                             }}
                                             className="flex-grow max-w-xs"
@@ -162,7 +167,7 @@ export default function NewEvents() {
                                 ))}
                             </ul>
                         </div>
-                        <Button type="submit">作成</Button>
+                        <Button type="submit">イベント作成</Button>
                     </form>
                 </div>
             </div >

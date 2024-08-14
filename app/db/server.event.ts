@@ -94,6 +94,30 @@ export const createEvent = async function (userId: string, data: { title: string
     return event;
 }
 
+// update event
+export const updateEvent = async function (eventId: number, data: { title: string, description: string, candidates: string[] }) {
+    const event = await prisma.events.update({
+        where: {
+            id: eventId
+        },
+        data: {
+            title: data.title,
+            description: data.description,
+            candidates: data.candidates
+        }
+    });
+    // eventのpariticipantsのabscenceを更新
+    const participants = await prisma.participants.updateMany({
+        where: {
+            eventId
+        },
+        data: {
+            abscence: []
+        }
+    });
+    return event;
+}
+
 // withdraw from event
 export const withdrawEvent = async function (id: number) {
     await prisma.participants.delete({
@@ -124,14 +148,14 @@ export const deleteEvent = async function (eventId: number) {
             eventId
         }
     });
-    await prisma.events.delete({
-        where: {
-            id: eventId
-        }
-    });
     await prisma.chats.deleteMany({
         where: {
             eventId
+        }
+    });
+    await prisma.events.delete({
+        where: {
+            id: eventId
         }
     });
 }

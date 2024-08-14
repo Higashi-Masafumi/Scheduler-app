@@ -56,13 +56,13 @@ import { createBrowserClient } from '@supabase/ssr';
 import { useRevalidator, useNavigate } from '@remix-run/react';
 import { ToastAction } from '~/components/ui/toast';
 import { useToast } from '~/components/ui/use-toast';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
     HoverCard,
     HoverCardContent,
     HoverCardTrigger,
 } from '~/components/ui/hover-card';
-import { Circle, Triangle, X } from 'lucide-react';
+import { Copy, CopyCheck } from 'lucide-react';
 
 // Zod schemaの定義
 const formSchema = z.object({
@@ -97,6 +97,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
         SUPABASE_URL: process.env.VITE_SUPABASE_URL!,
         SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY!,
         SUPABASE_STORAGE_BUCKET: process.env.VITE_SUPABASE_STORAGE_BUCKET!,
+        APP_URL: process.env.VITE_APP_URL!,
     };
     return { event, userId, chat, eventId, env };
 };
@@ -107,6 +108,7 @@ export const action = async ({ request, params }: LoaderFunctionArgs) => {
     if (formData.get('abscence')) {
         const participantId = Number(formData.get('participantId'));
         const abscence = JSON.parse(formData.get('abscence') as string);
+        console.log("abscence", abscence);
         const remarks = formData.get('remarks') as string;
         const newabscence = await updateAbscence(participantId, abscence, remarks);
         console.log(newabscence);
@@ -156,6 +158,7 @@ export default function EventTable() {
     const submit = useSubmit();
     const revalidator = useRevalidator();
     const navigate = useNavigate();
+    const [copied, setCopied] = useState(false);
     const { toast } = useToast();
     const supabase = createBrowserClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
     // 各候補日程の出席者数をカウントした配列
@@ -164,8 +167,13 @@ export default function EventTable() {
     });
     // 出席者数最大の候補日程のインデックスを取得
     const maxAbscence = Math.max(...countAbscence ?? []);
-    // 出席者数最大の候補日程の日付を取得
-    const maxAbscenceIndex = countAbscence?.indexOf(maxAbscence);
+    // 出席者数最大の候補日程のインデックスの配列を取得
+    const maxAbscenceIndexes = countAbscence?.reduce((acc, val, index) => {
+        if (val === maxAbscence) {
+            acc.push(index);
+        }
+        return acc;
+    }, [] as number[]) ?? [];
     // 開催者名を取得
     const holder = participants.find(participant => participant.userId === event.holderId)?.name;
 
@@ -205,7 +213,18 @@ export default function EventTable() {
         }
     }, [supabase]);
 
-
+    // リンク共有のコンポーネント
+    async function ShareLink(sharelink: string) {
+        try {
+            await navigator.clipboard.writeText(sharelink);
+            setCopied(true);
+            setTimeout(() => {
+                setCopied(false);
+            }, 3000);
+        } catch (error) {
+            console.error('Failed to copy!', error);
+        }
+    }
 
 
     function formatCandidateDate(candidate: string): string {
@@ -260,6 +279,7 @@ export default function EventTable() {
     async function onSubmit(data: FormData) {
         const formData = new FormData();
         console.log(data);
+
         formData.append('participantId', String(user?.id));
         formData.append('abscence', JSON.stringify(data.abscence));
         formData.append('remarks', data.remarks);
@@ -287,7 +307,7 @@ export default function EventTable() {
             header: () => (
                 <HoverCard>
                     <HoverCardTrigger asChild>
-                        {maxAbscenceIndex === index ?
+                        {maxAbscenceIndexes.includes(index) ?
                             <Button type="button" variant="destructive">
                                 {formatCandidateDate(candidate)}
                             </Button>
@@ -345,7 +365,16 @@ export default function EventTable() {
                     );
                 }
                 else {
-                    return <span>{participant.abscence[index] ?? "未選択"}</span>
+                    // 記号をつけて表示
+                    if (participant.abscence[index] === '出席') {
+                        return <span>出席　⭕️</span>
+                    }
+                    else if (participant.abscence[index] === '欠席') {
+                        return <span>欠席　❌</span>
+                    }
+                    else {
+                        return <span>未定　❓</span>
+                    }
                 }
             },
         })),
@@ -384,16 +413,19 @@ export default function EventTable() {
                 <h1 className="text-4xl font-extrabold">{event.title}</h1>
                 <Sheet>
                     <SheetTrigger asChild>
-                        <Button>チャット</Button>
+                        <Button>グループチャット</Button>
                     </SheetTrigger>
                     <SheetContent className="w-[350px] sm:w-[600px]">
                         <SheetHeader className="py-3">
                             <SheetTitle>{event.title}</SheetTitle>
-                            <SheetDescription>新規チャットがあっても自動的にはスクロールされません。</SheetDescription>
+                            <SheetDescription>
+                                イベントについて話し合うことができる<br />リアルタイムグループチャットです<br />
+                                一度送信したメッセージは削除できません
+                            </SheetDescription>
                         </SheetHeader>
                         <Separator />
                         <div className="grid gap-4 py-4">
-                            <ScrollArea className="h-[500px] sm:h-[550px]">
+                            <ScrollArea className="h-[500px] sm:h-[500px]">
                                 {formattedChat.map(chat => {
                                     if (chat.userId === userId) {
                                         return <OwnChatBubble key={chat.createdAt} avatar={chat.imageurl} username={chat.username} message={chat.message} createdAt={chat.createdAt_format} />
@@ -429,12 +461,34 @@ export default function EventTable() {
                     </SheetContent>
                 </Sheet>
             </div>
-            <div className="flex justify-between gap-5 mb-8">
+            <div className="grid-cols-3 gap-5 mb-8">
                 <p className="text-gray-600 text-lg place-content-start">{event.description}</p>
-                <div className="grid-cols-3 place-items-end">
+                <div className="grid-cols-3 place-items-end mt-4">
                     <nav>
-                        <li className="text-gray-600 text-sm">参加者数が最大の日程がハイライトされて表示されます</li>
+                        <h3 className="text-lg font-bold">注意事項</h3>
+                        <li className="text-gray-600 text-sm">参加者数が最大の日程が赤色で表示されます</li>
                         <li className="text-gray-600 text-sm">各日程にフォーカスすると出席者リストが表示されます</li>
+                        <li className="text-gray-600 text-sm">出席表は横方向にスクロールできます</li>
+                        <div className="flex items-center space-x-2 w-[350px] sm:w-[400px] mt-2">
+                            <Label htmlFor="link" className="text-sm font-bold">イベントリンク</Label>
+                            <div className="grid flex-1 gap-2">
+                                <Label htmlFor="link" className="sr-only">
+                                    Link
+                                </Label>
+                                <Input
+                                    id="link"
+                                    defaultValue={`${env.APP_URL}/events/${eventId}`}
+                                />
+                            </div>
+                            <Button
+                                size="sm"
+                                className="px-3"
+                                onClick={() => ShareLink(`${env.APP_URL}/events/${eventId}`)}
+                            >
+                                <span className="sr-only">Copy</span>
+                                {copied ? <CopyCheck size={16} /> : <Copy size={16} />}
+                            </Button>
+                        </div>
                     </nav>
                 </div>
             </div>

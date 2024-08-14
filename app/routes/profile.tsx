@@ -202,7 +202,7 @@ export default function Profile() {
                                     )}
                                 />
                             </div>
-                            <Button type="submit">保存</Button>
+                            <Button type="submit">プロフィール情報を保存</Button>
                         </form>
                     </CardContent>
                 </Card>

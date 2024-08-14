@@ -108,11 +108,24 @@ export const columns: ColumnDef<Event>[] = [
 
 export default function Index() {
   const { events } = useLoaderData<typeof loader>();
-  console.log("events", events);
   return (
     <div className="container mx-auto">
-      <div className="text-sm py-10">
+      <div className="text-sm pt-10 pb-5">
         <h1 className="text-3xl font-bold">あなたが参加中のイベント一覧</h1>
+      </div>
+      <div className="pb-5">
+        <h3 className="text-base font-bold">注意事項</h3>
+        <nav>
+          <li className="text-xs text-gray-600">
+            参加イベントの一覧です、横方向にスクロールできます
+          </li>
+          <li className="text-xs text-gray-600">
+            イベント名をクリックするとイベント詳細ページに遷移します
+          </li>
+          <li className="text-xs text-gray-600">
+            退会ボタンをクリックするとイベントから退会できます
+          </li>
+        </nav>
       </div>
       <DataTable columns={columns} data={events} />
     </div>

@@ -6,17 +6,18 @@ import { LoaderFunctionArgs, ActionFunctionArgs } from '@remix-run/node';
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from '~/components/data-table';
 import {
-AlertDialog,
-AlertDialogAction,
-AlertDialogCancel,
-AlertDialogContent,
-AlertDialogDescription,
-AlertDialogFooter,
-AlertDialogHeader,
-AlertDialogTitle,
-AlertDialogTrigger,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
 } from '~/components/ui/alert-dialog';
 import { deleteEvent } from '~/db/server.event';
+import { Alert } from '~/components/ui/alert';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
     const session = await getSession(request.headers.get('Cookie'));
@@ -26,19 +27,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         return redirect('/login');
     }
     const holdingEvents = await getHoldingEvents(userId);
-    // もしholdingeventsがnullだったら、ダミーデータを返す
-    if (!holdingEvents) {
-        return {
-            holdingEvents: [
-                {
-                    id: 1,
-                    title: 'イベントタイトル',
-                    description: 'イベントの説明',
-                    createdAt: '作成日'
-                },
-            ],
-        };
-    }
     return { holdingEvents };
 };
 
@@ -62,15 +50,11 @@ export const columns: ColumnDef<Event>[] = [
         accessorKey: "title",
         header: "イベント名",
         cell: ({ row }) => {
-            return <Button variant="secondary">
+            return (
+            <Button variant="secondary">
                 <NavLink to={`/events/${row.original.id}`}>{row.original.title}</NavLink>
             </Button>
-        }
-    },
-    {
-        accessorKey: "description",
-        header: () => {
-            return <span className="text-sm">説明</span>
+            )
         }
     },
     {
@@ -78,6 +62,31 @@ export const columns: ColumnDef<Event>[] = [
         header: "作成日",
         cell: ({ row }) => {
             return <span>{new Date(row.original.createdAt).toLocaleDateString()}</span>
+        }
+    },
+    {
+        id: "actons",
+        cell: ({ row }) => {
+            return (
+                <AlertDialog>
+                    <AlertDialogTrigger>
+                        <Button>編集</Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>イベントを編集しますか?</AlertDialogTitle>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>キャンセル</AlertDialogCancel>
+                            <AlertDialogAction>
+                                <NavLink to={`/events/edit/${row.original.id}`}>
+                                    編集
+                                </NavLink>
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            )
         }
     },
     {
@@ -99,22 +108,39 @@ export const columns: ColumnDef<Event>[] = [
                             <AlertDialogCancel>キャンセル</AlertDialogCancel>
                             <Form method="post">
                                 <input type="hidden" name="id" value={row.original.id} />
-                                <AlertDialogAction type="submit">削除</AlertDialogAction>
+                                <AlertDialogAction type="submit" className="w-full">削除</AlertDialogAction>
                             </Form>
                         </AlertDialogFooter>
                     </AlertDialogContent>
                 </AlertDialog>
             )
+        }
     }
-}
 ];
 
 export default function HoldingEvents() {
     const holdingEvents = useLoaderData<{ holdingEvents: Event[] }>();
     return (
         <div className="container mx-auto py-10">
-            <div className="text-sm pb-10">
+            <div className="text-sm pb-4">
                 <h1 className="text-3xl font-bold">あなたが開催中のイベント一覧</h1>
+            </div>
+            <div className="pb-5">
+                <h3 className="text-base font-bold pb-2">注意事項</h3>
+                <nav>
+                    <li className="text-gray-600 text-xs">
+                        参加中のイベント一覧です、横方向にスクロールできます
+                    </li>
+                    <li className="text-gray-600 text-xs">
+                        イベント名をクリックするとイベント詳細ページに遷移します
+                    </li>
+                    <li className="text-gray-600 text-xs">
+                        編集ボタンをクリックするとイベント情報を編集できます
+                    </li>
+                    <li className="text-gray-600 text-xs">
+                        削除ボタンをクリックするとイベント情報を削除できます
+                    </li>
+                </nav>
             </div>
             <DataTable columns={columns} data={holdingEvents.holdingEvents} />
         </div>
