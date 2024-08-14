@@ -54,7 +54,7 @@ import { OtherChatBubble, OwnChatBubble } from "~/components/chat";
 import { getChat, postChat } from '~/db/server.chat';
 import { createBrowserClient } from '@supabase/ssr';
 import { useRevalidator, useNavigate } from '@remix-run/react';
-import { toast } from '~/components/ui/use-toast';
+import { ToastAction } from '~/components/ui/toast';
 import { useToast } from '~/components/ui/use-toast';
 import { useEffect } from 'react';
 
@@ -150,6 +150,7 @@ export default function EventTable() {
     const submit = useSubmit();
     const revalidator = useRevalidator();
     const navigate = useNavigate();
+    const { toast } = useToast();
     const supabase = createBrowserClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
 
 
@@ -158,8 +159,30 @@ export default function EventTable() {
             event: 'INSERT',
             schema: 'public',
             table: 'Chats',
+            filter: `eventId=eq.${eventId}`,
         }, (payload) => {
             console.log("payload", payload);
+            // このイベントに関連するチャットのみを取得
+            const newChat = payload.new;
+            // userIdからusername, imageurlを取得
+            const username = participants.find(participant => participant.userId === newChat.userId)?.name;
+            const imageurl = participants.find(participant => participant.userId === newChat.userId)?.imageurl;
+            // 自分以外の新規チャットを通知して、チャットを更新
+            if (newChat.userId !== userId) {
+                toast({
+                    title: username,
+                    description: 
+                        <div className="flex items-center space-x-2">
+                            <Avatar>
+                                <AvatarImage src={imageurl} alt={username} />
+                                <AvatarFallback>{username}</AvatarFallback>
+                            </Avatar>
+                            <p>{newChat.message}</p>
+                        </div>,
+                    action: <ToastAction altText="閉じる">閉じる</ToastAction>
+                })
+            }
+            navigate('.', { replace: true });
         }).subscribe()
         return () => {
             supabase.removeChannel(channel)
