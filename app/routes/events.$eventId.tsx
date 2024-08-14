@@ -57,6 +57,11 @@ import { useRevalidator, useNavigate } from '@remix-run/react';
 import { ToastAction } from '~/components/ui/toast';
 import { useToast } from '~/components/ui/use-toast';
 import { useEffect } from 'react';
+import {
+    HoverCard,
+    HoverCardContent,
+    HoverCardTrigger,
+} from '~/components/ui/hover-card';
 
 // Zod schemaの定義
 const formSchema = z.object({
@@ -152,6 +157,8 @@ export default function EventTable() {
     const navigate = useNavigate();
     const { toast } = useToast();
     const supabase = createBrowserClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
+    // 参加者数が一番多い候補日を取得
+    
 
 
     useEffect(() => {
@@ -171,7 +178,7 @@ export default function EventTable() {
             if (newChat.userId !== userId) {
                 toast({
                     title: username,
-                    description: 
+                    description:
                         <div className="flex items-center space-x-2">
                             <Avatar>
                                 <AvatarImage src={imageurl} alt={username} />
@@ -269,21 +276,25 @@ export default function EventTable() {
         ...(event.candidates ?? []).map((candidate, index) => ({
             accessorKey: `absence.${index}`,
             header: () => (
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button type="button" variant="link">
-                                {formatCandidateDate(candidate)}
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <h3>出席可能な参加者</h3>
-                            {participants.filter(participant => participant.abscence[index] === '出席').map(participant => (
-                                <p key={participant.id}>{participant.name}</p>
-                            ))}
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
+                <HoverCard>
+                    <HoverCardTrigger asChild>
+                        <Button type="button" variant="secondary">
+                            {formatCandidateDate(candidate)}
+                        </Button>
+                    </HoverCardTrigger>
+                    <HoverCardContent className="w-60">
+                        <h2 className="font-bold pb-2">出席可能な参加者一覧</h2>
+                        {participants.filter(participant => participant.abscence[index] === '出席').map(participant => (
+                            <div key={participant.userId} className="flex items-center gap-2">
+                                <Avatar>
+                                    <AvatarImage src={participant.imageurl} alt={participant.name} />
+                                    <AvatarFallback>{participant.name}</AvatarFallback>
+                                </Avatar>
+                                <div>{participant.name}</div>
+                            </div>
+                        ))}
+                    </HoverCardContent>
+                </HoverCard>
             ),
             cell: ({ row }: { row: { original: Participant } }) => {
                 const participant = row.original;
