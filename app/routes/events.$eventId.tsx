@@ -62,6 +62,7 @@ import {
     HoverCardContent,
     HoverCardTrigger,
 } from '~/components/ui/hover-card';
+import { Circle, Triangle, X } from 'lucide-react';
 
 // Zod schemaの定義
 const formSchema = z.object({
@@ -157,8 +158,16 @@ export default function EventTable() {
     const navigate = useNavigate();
     const { toast } = useToast();
     const supabase = createBrowserClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
-    // 参加者数が一番多い候補日を取得
-    
+    // 各候補日程の出席者数をカウントした配列
+    const countAbscence = event.candidates?.map((candidate, index) => {
+        return participants.filter(participant => participant.abscence[index] === '出席').length;
+    });
+    // 出席者数最大の候補日程のインデックスを取得
+    const maxAbscence = Math.max(...countAbscence ?? []);
+    // 出席者数最大の候補日程の日付を取得
+    const maxAbscenceIndex = countAbscence?.indexOf(maxAbscence);
+    // 開催者名を取得
+    const holder = participants.find(participant => participant.userId === event.holderId)?.name;
 
 
     useEffect(() => {
@@ -278,9 +287,14 @@ export default function EventTable() {
             header: () => (
                 <HoverCard>
                     <HoverCardTrigger asChild>
-                        <Button type="button" variant="secondary">
-                            {formatCandidateDate(candidate)}
-                        </Button>
+                        {maxAbscenceIndex === index ?
+                            <Button type="button" variant="destructive">
+                                {formatCandidateDate(candidate)}
+                            </Button>
+                            : <Button type="button" variant="secondary">
+                                {formatCandidateDate(candidate)}
+                            </Button>
+                        }
                     </HoverCardTrigger>
                     <HoverCardContent className="w-60">
                         <h2 className="font-bold pb-2">出席可能な参加者一覧</h2>
@@ -314,9 +328,15 @@ export default function EventTable() {
                                         </FormControl>
                                         <FormMessage />
                                         <SelectContent>
-                                            <SelectItem value="出席">出席</SelectItem>
-                                            <SelectItem value="欠席">欠席</SelectItem>
-                                            <SelectItem value="未定">未定</SelectItem>
+                                            <SelectItem value="出席">
+                                                出席　⭕️
+                                            </SelectItem>
+                                            <SelectItem value="欠席">
+                                                欠席　❌
+                                            </SelectItem>
+                                            <SelectItem value="未定">
+                                                未定　❓
+                                            </SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </FormItem>
@@ -409,8 +429,14 @@ export default function EventTable() {
                     </SheetContent>
                 </Sheet>
             </div>
-            <div className="mb-8">
-                <p className="text-gray-600 text-lg">{event.description}</p>
+            <div className="flex justify-between gap-5 mb-8">
+                <p className="text-gray-600 text-lg place-content-start">{event.description}</p>
+                <div className="grid-cols-3 place-items-end">
+                    <nav>
+                        <li className="text-gray-600 text-sm">参加者数が最大の日程がハイライトされて表示されます</li>
+                        <li className="text-gray-600 text-sm">各日程にフォーカスすると出席者リストが表示されます</li>
+                    </nav>
+                </div>
             </div>
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)}>

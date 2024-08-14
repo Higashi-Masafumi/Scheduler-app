@@ -129,4 +129,9 @@ export const deleteEvent = async function (eventId: number) {
             id: eventId
         }
     });
+    await prisma.chats.deleteMany({
+        where: {
+            eventId
+        }
+    });
 }
