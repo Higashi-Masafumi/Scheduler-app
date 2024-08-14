@@ -118,7 +118,7 @@ export default function Profile() {
             const supabase = createBrowserClient(env.SUPABASE_URL!, env.SUPABASE_ANON_KEY!);
             console.log(file);
             console.log(file.name);
-            const { data, error } = await supabase.storage.from('avatar').upload(`${userData?.id}/${file.name}`, file, {upsert: true});
+            const { data, error } = await supabase.storage.from('images').upload(`${userData?.id}/${file.name}`, file, {upsert: true});
             console.log(data);
             console.log(error);
             if (error) {
@@ -135,7 +135,7 @@ export default function Profile() {
                 action: <ToastAction altText="閉じる">閉じる</ToastAction>
             });
             // 成功した場合は公開URLを取得
-            const { data: publicUrl } = await supabase.storage.from("avatar").getPublicUrl(`${userData?.id}/${file.name}`);
+            const { data: publicUrl } = await supabase.storage.from('images').getPublicUrl(`${userData?.id}/${file.name}`);
             console.log(publicUrl);
             // 公開URLをデータベースに保存
             form.setValue('avatar', publicUrl.publicUrl);
