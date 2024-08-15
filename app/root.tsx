@@ -7,6 +7,7 @@ import {
   NavLink,
   Form,
   Link,
+  useLoaderData,
 } from "@remix-run/react";
 import "./tailwind.css";
 import {
@@ -22,11 +23,27 @@ import { Button } from "~/components/ui/button";
 import { Toaster } from "~/components/ui/toaster";
 import { getSession, destroySession } from "~/sessions";
 import { redirect } from "@remix-run/react";
-import { ActionFunctionArgs } from "@remix-run/node";
+import { ActionFunctionArgs, MetaFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { useRouteError, isRouteErrorResponse } from "@remix-run/react";
-import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
-import { AlertCircle } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
+
+export const meta: MetaFunction = ({ location }) => {
+  const path = location.pathname;
+  return [
+    { title: "調整くん" },
+    {
+      name: "description",
+      content: "簡単に日程調整を行い、イベントを円滑に進めましょう。リアルタイムのチャットで参加者と円滑にコミュニケーションをとりましょう。"
+    },
+  ];
+};
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const path = request.url;
+  const pathname = new URL(path).pathname;
+  console.log(pathname);
+  return { pathname };
+}
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const session = await getSession(request.headers.get("Cookie"));
@@ -189,11 +206,30 @@ export function NavigationHeader() {
   );
 }
 
+// ログインページ、新規登録ページ、ウェルカムページ用のナビゲーションヘッダー
+export function WelcomeNavigationHeader() {
+  return (
+    <header className="bg-slate-800">
+      <div className="container mx-auto flex justify-between items-center p-4">
+        <div className="flex-1">
+          <NavLink to="/" className="text-white font-bold text-xl">調整くん</NavLink>
+        </div>
+        <div>
+          <NavLink to="/login" className="text-white mr-4">ログイン</NavLink>
+          <NavLink to="/signup" className="text-white">新規登録</NavLink>
+        </div>
+      </div>
+    </header>
+  );
+}
+  
+
 
 export default function App() {
+  const { pathname } = useLoaderData<typeof loader>();
   return (
     <div>
-      <NavigationHeader />
+      {pathname === "/login" || pathname === "/" || pathname === "/signup" ? <WelcomeNavigationHeader/> : <NavigationHeader />}
       <main>
         <Outlet />
       </main>

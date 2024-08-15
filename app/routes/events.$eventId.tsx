@@ -97,7 +97,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
         SUPABASE_URL: process.env.VITE_SUPABASE_URL!,
         SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY!,
         SUPABASE_STORAGE_BUCKET: process.env.VITE_SUPABASE_STORAGE_BUCKET!,
-        APP_URL: process.env.VITE_APP_URL!,
+        APP_URL: new URL(request.url),
     };
     return { event, userId, chat, eventId, env };
 };
@@ -409,11 +409,11 @@ export default function EventTable() {
 
     return (
         <div className="container mx-auto py-10 px-5">
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex justify-between items-center mb-4">
                 <h1 className="text-4xl font-extrabold">{event.title}</h1>
                 <Sheet>
                     <SheetTrigger asChild>
-                        <Button>グループチャット</Button>
+                        <Button>チャット</Button>
                     </SheetTrigger>
                     <SheetContent className="w-[350px] sm:w-[600px]">
                         <SheetHeader className="py-3">
@@ -485,7 +485,7 @@ export default function EventTable() {
                             <Button
                                 size="sm"
                                 className="px-3"
-                                onClick={() => ShareLink(`${env.APP_URL}/events/${eventId}`)}
+                                onClick={() => ShareLink(env.APP_URL)}
                             >
                                 <span className="sr-only">Copy</span>
                                 {copied ? <CopyCheck size={16} /> : <Copy size={16} />}

@@ -12,7 +12,17 @@ export const signUp = async function (id: string, email: string, name?: string, 
         },
     });  
     if(findUser) {
-        return findUser;
+        // アップデート情報がある場合、アップデートする
+        const updateuser = await prisma.user.update({
+        where: {
+            id,
+        },
+        data: {
+            name,
+            imageurl,
+        },
+        });
+        return updateuser;
     }
     // ユーザーが存在しない場合、新規ユーザーを作成して返す
     const newuser = await prisma.user.create({

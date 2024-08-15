@@ -16,13 +16,6 @@ import {
 } from "~/components/ui/alert-dialog";
 import { ColumnDef } from "@tanstack/react-table";
 import { getEvents, withdrawEvent } from "~/db/server.event";
-import { createServerClient, parseCookieHeader, serializeCookieHeader } from "@supabase/ssr"
-export const meta: MetaFunction = () => {
-  return [
-    { title: "調整くん" },
-    { name: "description", content: "Welcome to Schedule App" },
-  ];
-};
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get("Cookie"));
