@@ -52,7 +52,7 @@ export const columns: ColumnDef<Event>[] = [
         cell: ({ row }) => {
             return (
             <Button variant="secondary">
-                <NavLink to={`/events/${row.original.id}`}>{row.original.title}</NavLink>
+                <NavLink to={`/events/${row.original.id}`} prefetch='viewport'>{row.original.title}</NavLink>
             </Button>
             )
         }

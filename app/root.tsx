@@ -184,16 +184,16 @@ export function NavigationHeader() {
               <DropdownMenuLabel>メニュー</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
-                <NavLink to="/events/participate">参加中のイベント一覧</NavLink>
+                <NavLink to="/events/participate" prefetch="intent">参加中のイベント一覧</NavLink>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <NavLink to="/events">あなたの開催中イベント</NavLink>
+                <NavLink to="/events" prefetch="intent">あなたの開催中イベント</NavLink>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <NavLink to="/new-events">新規イベント作成</NavLink>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <NavLink to="/profile">プロフィール編集</NavLink>
+                <NavLink to="/profile" prefetch="intent">プロフィール編集</NavLink>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

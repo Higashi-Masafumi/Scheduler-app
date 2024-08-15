@@ -50,7 +50,7 @@ export const columns: ColumnDef<Event>[] = [
     cell: ({ row }) => {
       return (
         <Button variant="secondary">
-          <NavLink to={`/events/${row.original.eventId}`}>{row.original.title}</NavLink>
+          <NavLink to={`/events/${row.original.eventId}`} prefetch="viewport">{row.original.title}</NavLink>
         </Button>
       );
     },
