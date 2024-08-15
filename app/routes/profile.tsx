@@ -78,7 +78,7 @@ export const action: ActionFunction = async ({ request }: ActionFunctionArgs) =>
     if (!updatedUser) {
         return redirect('/profile');
     }
-    return redirect('/');
+    return redirect('/events');
 };
 
 type FormData = z.infer<typeof formSchema>;

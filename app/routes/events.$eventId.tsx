@@ -62,7 +62,7 @@ import {
     HoverCardContent,
     HoverCardTrigger,
 } from '~/components/ui/hover-card';
-import { Copy, CopyCheck } from 'lucide-react';
+import { Copy, CopyCheck, Scroll } from 'lucide-react';
 
 // Zod schemaの定義
 const formSchema = z.object({
@@ -113,7 +113,7 @@ export const action = async ({ request, params }: LoaderFunctionArgs) => {
         const newabscence = await updateAbscence(participantId, abscence, remarks);
         console.log(newabscence);
         if (newabscence) {
-            return redirect(`/`);
+            return redirect(`/events/participate`);
         }
     }
     if (formData.get('message')) {
@@ -349,13 +349,13 @@ export default function EventTable() {
                                         <FormMessage />
                                         <SelectContent>
                                             <SelectItem value="出席">
-                                                出席　⭕️
+                                                出席⭕️
                                             </SelectItem>
                                             <SelectItem value="欠席">
-                                                欠席　❌
+                                                欠席❌
                                             </SelectItem>
                                             <SelectItem value="未定">
-                                                未定　❓
+                                                未定❓
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
@@ -367,13 +367,13 @@ export default function EventTable() {
                 else {
                     // 記号をつけて表示
                     if (participant.abscence[index] === '出席') {
-                        return <span>出席　⭕️</span>
+                        return <span>出席⭕️</span>
                     }
                     else if (participant.abscence[index] === '欠席') {
-                        return <span>欠席　❌</span>
+                        return <span>欠席❌</span>
                     }
                     else {
-                        return <span>未定　❓</span>
+                        return <span>未定❓</span>
                     }
                 }
             },
@@ -424,6 +424,7 @@ export default function EventTable() {
                             </SheetDescription>
                         </SheetHeader>
                         <Separator />
+                        <div className="flex flex-col h-[calc(100vh-200px)] sm:h-[calc(100vh-250px)]">
                         <div className="grid gap-4 py-4">
                             <ScrollArea className="h-[500px] sm:h-[500px]">
                                 {formattedChat.map(chat => {
@@ -458,6 +459,7 @@ export default function EventTable() {
                                 </form>
                             </Form>
                         </SheetFooter>
+                        </div>
                     </SheetContent>
                 </Sheet>
             </div>

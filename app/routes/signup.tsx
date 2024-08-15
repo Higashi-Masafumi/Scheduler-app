@@ -40,7 +40,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const session = await getSession(request.headers.get('Cookie'));
     const userId = session.get('userId');
     if (userId) {
-        return redirect('/');
+        return redirect('/events');
     }
     return {
         env: {
@@ -77,7 +77,7 @@ export async function action({ request }: ActionFunctionArgs) {
         if (newuser) {
             const session = await getSession(request.headers.get('Cookie'));
             session.set('userId', id);
-            return redirect("/", {
+            return redirect("/events", {
                 headers: {
                     "Set-Cookie": await commitSession(session),
                 }

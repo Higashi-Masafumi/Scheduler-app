@@ -39,7 +39,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const id = Number(formData.get("id"));
   await withdrawEvent(id);
-  return redirect("/");
+  return redirect(".");
 }
 
 export type Event = {

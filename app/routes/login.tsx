@@ -68,7 +68,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         session.set("userId", id);
         console.log("Session data", session.data);
         // cookieにセッションを保存
-        return redirect("/",
+        return redirect("/events",
             {
                 headers: {
                     "Set-Cookie": await commitSession(session),

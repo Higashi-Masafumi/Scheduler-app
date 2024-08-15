@@ -37,7 +37,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
             if (newuser) {
                 const session = await getSession(request.headers.get('Cookie'));
                 session.set('userId', id);
-                return redirect("/", {
+                return redirect("/events", {
                     headers: {
                         "Set-Cookie": await commitSession(session),
                 }

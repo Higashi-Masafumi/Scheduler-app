@@ -58,7 +58,7 @@ export function ErrorBoundary() {
             </CardHeader>
             <CardContent>
               <div className="w-full">
-                <Link to="/">
+                <Link to="/events">
                   <Button className="w-full">イベント一覧ページに戻る</Button>
                 </Link>
               </div>
@@ -80,7 +80,7 @@ export function ErrorBoundary() {
           </CardHeader>
           <CardContent>
             <div className="w-full">
-              <Link to="/">
+              <Link to="/events">
                 <Button className="w-full">イベント一覧ページに戻る</Button>
               </Link>
             </div>
@@ -103,7 +103,7 @@ function Error404() {
         </CardHeader>
         <CardContent>
           <div className="w-full">
-            <Link to="/">
+            <Link to="/events">
               <Button className="w-full">イベント一覧ページに戻る</Button>
             </Link>
           </div>
@@ -125,7 +125,7 @@ function Error500() {
         </CardHeader>
         <CardContent>
           <div className="w-full">
-            <Link to="/">
+            <Link to="/events">
               <Button className="w-full">イベント一覧ページに戻る</Button>
             </Link>
           </div>
@@ -167,7 +167,7 @@ export function NavigationHeader() {
               <DropdownMenuLabel>メニュー</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
-                <NavLink to="/">参加中のイベント一覧</NavLink>
+                <NavLink to="/events/participate">参加中のイベント一覧</NavLink>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <NavLink to="/events">あなたの開催中イベント</NavLink>
