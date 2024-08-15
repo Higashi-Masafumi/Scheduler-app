@@ -1,5 +1,3 @@
--- This is an empty migration.
-
 grant usage on schema public to postgres, anon, authenticated, service_role;
 
 grant all privileges on all tables in schema public to postgres, anon, authenticated, service_role;

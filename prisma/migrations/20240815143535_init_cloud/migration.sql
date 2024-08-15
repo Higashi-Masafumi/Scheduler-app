@@ -66,5 +66,3 @@ ALTER TABLE "public"."Chats" ADD CONSTRAINT "Chats_eventId_fkey" FOREIGN KEY ("e
 
 -- AddForeignKey
 ALTER TABLE "public"."Chats" ADD CONSTRAINT "Chats_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth"."User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
-
