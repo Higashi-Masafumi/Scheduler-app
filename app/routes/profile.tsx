@@ -118,13 +118,16 @@ export default function Profile() {
             const supabase = createBrowserClient(env.SUPABASE_URL!, env.SUPABASE_ANON_KEY!);
             console.log(file);
             console.log(file.name);
-            const { data, error } = await supabase.storage.from('images').upload(`${userData?.id}/${file.name}`, file, {upsert: true});
+            // keyerrorを回避するためにfile.nameを英語に変換
+            const fileName = file.name.replace(/[^a-zA-Z0-9]/g, '');
+
+            const { data, error } = await supabase.storage.from('images').upload(`${userData?.id}/${fileName}`, file, {upsert: true});
             console.log(data);
             console.log(error);
             if (error) {
                 toast({
-                    title: 'エラー',
-                    description: '画像のアップロードに失敗しました',
+                    title: 'アップロードエラー',
+                    description: '画像のアップロードに失敗しました。画像のサイズが大きすぎる、またはサポートされていない形式の可能性があります。',
                     action: <ToastAction altText="閉じる">閉じる</ToastAction>
                 });
                 return;
@@ -135,7 +138,7 @@ export default function Profile() {
                 action: <ToastAction altText="閉じる">閉じる</ToastAction>
             });
             // 成功した場合は公開URLを取得
-            const { data: publicUrl } = await supabase.storage.from('images').getPublicUrl(`${userData?.id}/${file.name}`);
+            const { data: publicUrl } = await supabase.storage.from('images').getPublicUrl(`${userData?.id}/${fileName}`);
             console.log(publicUrl);
             // 公開URLをデータベースに保存
             form.setValue('avatar', publicUrl.publicUrl);

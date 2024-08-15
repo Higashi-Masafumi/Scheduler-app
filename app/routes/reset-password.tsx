@@ -16,6 +16,7 @@ import {
 import { createBrowserClient } from "@supabase/ssr";
 import { useState } from "react";
 import { useLoaderData } from "@remix-run/react";
+import { Mail, Send } from "lucide-react";
 
 // Zod schemaの定義
 const formSchema = z.object({
@@ -72,14 +73,16 @@ export default function ResetPassword() {
             <Card className="w-full max-w-md mx-auto my-10">
                 <CardHeader className="space-y-1">
                     <CardTitle className="text-2xl font-bold">パスワードのリセット</CardTitle>
-                    <CardDescription>パスワードリセットメールを送信しています</CardDescription>
+                    <CardDescription>
+                        パスワードリセットメールしました。メールを確認してください
+                    </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="flex justify-center">
-                        <svg className="animate-spin h-10 w-10 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V4a10 10 0 00-10 10h2zm2 8a8 8 0 018-8h2a10 10 0 00-10 10v-2z"></path>
-                        </svg>
+                    <div className="flex items-center justify-center">
+                        <Send className="w-16 h-16 text-green-400 animate-spin" />
+                    </div>
+                    <div className="text-center mt-4">
+                        メールを確認できない場合は、迷惑メールフォルダをご確認ください
                     </div>
                 </CardContent>
             </Card>
@@ -112,7 +115,10 @@ export default function ResetPassword() {
                                     </FormItem>
                                 )}
                             />
-                            <Button type="submit" className="w-full">パスワードリセットメールを送信</Button>
+                            <Button type="submit" className="w-full">
+                                <Mail className="w-5 h-5 mr-2" />
+                                パスワードリセットメールを送信
+                            </Button>
                         </form>
                     </CardContent>
                 </Card>
