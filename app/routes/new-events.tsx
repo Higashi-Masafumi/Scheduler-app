@@ -67,10 +67,12 @@ export default function NewEvents() {
 
     const [candidates, setCandidates] = useState<string[]>([]);
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
     const { toast } = useToast();
     const submit = useSubmit();
 
     async function onSubmit(formData: FormData) {
+        setLoading(true);
         const formDataWithCandidates = { ...formData, candidates };
         // 候補日時を選択していない場合はエラーを表示
         if (candidates.length === 0) {
@@ -103,8 +105,11 @@ export default function NewEvents() {
             <div className="space-y-6 py-10 px-10">
                 <div className="space-y-2">
                     <h1 className="text-3xl font-bold tracking-wide md:text-3xl">新規イベント作成</h1>
+                    <p className="text-gray-500">
+                        イベントのタイトルと説明、イベントの開始日時を選択してください
+                    </p>
                 </div>
-                <div className="space-y-6">
+                <div className="space-y-3">
                     <form onSubmit={form.handleSubmit(onSubmit)}>
                         <div className="space-y-4 my-4">
                             <FormField
@@ -224,7 +229,11 @@ export default function NewEvents() {
                                 ))}
                             </ul>
                         </div>
-                        <Button type="submit">イベント作成</Button>
+                        {loading ? (
+                            <Button disabled type="submit">イベントを作成中</Button>
+                        ) : (
+                            <Button type="submit">イベントを作成</Button>
+                        )}
                     </form>
                 </div>
             </div >

@@ -47,27 +47,39 @@ export const columns: ColumnDef<Event>[] = [
     accessorKey: "title",
     header: "イベント名",
     cell: ({ row }) => {
+      const isPending = false;
       return (
-        <Button variant="secondary">
-          <NavLink 
-            to={`/events/${row.original.eventId}`}
-            prefetch="viewport"
-            className={({ isActive, isPending }) =>
-              isPending ? "pending" : isActive ? "active" : ""
-            }>
-            {row.original.title}
-          </NavLink>
-        </Button>
+        <NavLink
+          to={`/events/${row.original.eventId}`}
+          prefetch="viewport"
+          className={({ isActive, isPending }) =>
+            isPending ? "pending" : isActive ? "active" : ""
+          }>
+          {isPending ?
+            <Button variant="secondary" disabled>
+              イベントへ遷移中...
+            </Button>
+            :
+            <Button variant="secondary">
+              {row.original.title}
+            </Button>}
+        </NavLink>
       );
     },
   },
   {
     accessorKey: "description",
     header: "説明",
-  },
-  {
-    accessorKey: "holder",
-    header: "開催者",
+    cell: ({ row }) => {
+      {/*イベント説明が長い場合も想定されるので長さを制限*/ }
+      return (
+        <span>
+          {row.original.description?.length ?? 0 > 10
+            ? `${row.original.description?.slice(0, 10)}...`
+            : row.original.description ?? ""}
+        </span>
+      );
+    },
   },
   {
     accessorKey: "createdAt",

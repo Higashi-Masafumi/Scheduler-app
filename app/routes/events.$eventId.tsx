@@ -171,8 +171,16 @@ export default function EventTable() {
         }
         return acc;
     }, [] as number[]) ?? [];
-    // 開催者名を取得
-    const holder = participants.find(participant => participant.userId === event.holderId)?.name;
+    // ログインユーザーが出席表の一番上に表示されるようにする（バブルソートを利用）
+    participants.sort((a, b) => {
+        if (a.userId === userId) {
+            return -1;
+        }
+        if (b.userId === userId) {
+            return 1;
+        }
+        return 0;
+    });
 
 
     useEffect(() => {
@@ -410,16 +418,15 @@ export default function EventTable() {
                         <Button>チャット</Button>
                     </SheetTrigger>
                     <SheetContent className="w-[350px] sm:w-[600px]">
-                        <SheetHeader className="py-3">
-                            <SheetTitle>{event.title}</SheetTitle>
+                        <SheetHeader className="my-1">
                             <SheetDescription>
                                 イベントについて話し合いましょう
                             </SheetDescription>
                         </SheetHeader>
                         <Separator />
                         <div className="flex flex-col">
-                            <div className="grid gap-4 py-4">
-                                <ScrollArea className={chatInputFocused ? "h-[300px] sm:h-[500px]" : "h-[500px] sm:h-[600px]"}>
+                            <div className="grid gap-4 py-2">
+                                <ScrollArea className={chatInputFocused ? "h-[230px] sm:h-[500px]" : "h-[400px] sm:h-[600px]"}>
                                     {formattedChat.map(chat => {
                                         if (chat.userId === userId) {
                                             return <OwnChatBubble key={chat.createdAt} avatar={chat.imageurl} username={chat.username} message={chat.message} createdAt={chat.createdAt_format} />

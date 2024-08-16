@@ -118,12 +118,12 @@ export default function Login() {
             password: formData.password,
         });
         if (error) {
+            setLoading(false);
             form.setError('email', {
                 type: 'manual',
                 message: error.message,
             });
         }
-        setLoading(false);
         submit(formData, { method: 'post' });
     }
 

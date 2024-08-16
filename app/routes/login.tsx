@@ -106,12 +106,12 @@ export default function Login() {
             password: formData.password,
         });
         if (error) {
+            setLoading(false);
             form.setError("password", { message: error.message });
         }
         else {
             submit(formData, { method: "post" });
         }
-        setLoading(false);
     }
 
     // Googleアカウントでログイン、リダイレクト先でセッションを設定

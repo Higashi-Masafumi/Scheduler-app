@@ -50,10 +50,25 @@ export const columns: ColumnDef<Event>[] = [
         accessorKey: "title",
         header: "イベント名",
         cell: ({ row }) => {
+            const isPending = false;
             return (
-            <Button variant="secondary">
-                <NavLink to={`/events/${row.original.id}`} prefetch='viewport'>{row.original.title}</NavLink>
-            </Button>
+                <NavLink
+                    to={`/events/${row.original.id}`}
+                    prefetch="viewport"
+                    className={({ isActive, isPending }) =>
+                        isPending ? "pending" : isActive ? "active" : ""
+                    }>
+                    {/*タップされたらdisabledになる*/}
+                    {isPending ? (
+                        <Button variant="secondary" disabled>
+                            イベントへ遷移中...
+                        </Button>
+                    ) : (
+                        <Button variant="secondary">
+                            {row.original.title}
+                        </Button>
+                    )}
+                </NavLink>
             )
         }
     },
