@@ -32,7 +32,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
             const id = user.id as string;
             const email = user.email as string;
             const name = user.user_metadata?.full_name as string;
-            console.log("user", user);
             const newuser = await signUp(id, email, name);
             if (newuser) {
                 const session = await getSession(request.headers.get('Cookie'));

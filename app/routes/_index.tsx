@@ -13,7 +13,7 @@ export default function WelcomePage() {
             簡単にスケジュール調整を行い、イベントを円滑に進めましょう。
           </p>
           <img 
-            src="path_to_your_intro_image.jpg" 
+            src="../homepage.png" 
             alt="イベントスケジューリング" 
             className="mx-auto mb-6 w-full max-w-md rounded-lg shadow-lg" 
           />
@@ -24,12 +24,12 @@ export default function WelcomePage() {
             <CardHeader>
               <CardTitle>イベントの簡単な管理</CardTitle>
               <CardDescription>
-                イベントリンクを共有するだけで、認証済みユーザーが簡単に参加できます。
+                イベントリンクを共有するだけで、会員ユーザーが簡単に参加できます。
               </CardDescription>
             </CardHeader>
             <CardContent>
               <img 
-                src="path_to_your_feature_image_1.jpg" 
+                src="../eventexample.png" 
                 alt="イベント管理" 
                 className="w-full h-40 object-cover rounded-lg mb-4" 
               />
@@ -50,7 +50,7 @@ export default function WelcomePage() {
             </CardHeader>
             <CardContent>
               <img 
-                src="path_to_your_feature_image_2.jpg" 
+                src="../chatexample.png" 
                 alt="リアルタイムチャット" 
                 className="w-full h-40 object-cover rounded-lg mb-4" 
               />

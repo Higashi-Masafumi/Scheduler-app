@@ -59,11 +59,8 @@ export default function ResetPassword() {
             {
                 redirectTo: `${window.location.origin}/change-password`,
             });
-        console.log("data", data);
-        console.log(`${window.location.origin}/change-password`)
         if (error) {
             setLoading(false);
-            console.log(error);
             return;
         }
     }

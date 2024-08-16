@@ -20,7 +20,6 @@ import { getEvents, withdrawEvent } from "~/db/server.event";
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get("Cookie"));
   const userId = session.get("userId");
-  console.log("userId", userId);
   if (!userId) {
     return redirect("/login");
   }

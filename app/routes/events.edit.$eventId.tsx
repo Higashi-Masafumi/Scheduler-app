@@ -50,7 +50,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
     const session = await getSession(request.headers.get('Cookie'));
     const user = session.get('userId');
     const formData = await request.formData();
-    console.log(formData);
     const title = formData.get('title') as string;
     const description = formData.get('description') as string;
     const candidates: string[] = (formData.getAll('candidates') as string[]).flatMap(candidate =>
@@ -58,7 +57,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
     const eventId = Number(params.eventId);
     const newevent = await updateEvent(eventId, { title, description, candidates });
-    console.log(newevent);
     if (newevent) {
         return redirect(`/events/${eventId}`);
     }
@@ -96,7 +94,6 @@ export default function EditEvents() {
         }
         // 候補日時が未指定の場合はエラーを表示
         for (const candidate of candidates) {
-            console.log(candidate);
             const date = new Date(candidate);
             if (isNaN(date.getTime())) {
                 toast({

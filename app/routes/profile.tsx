@@ -40,10 +40,8 @@ const formSchema = z.object({
 export async function loader({ request }: LoaderFunctionArgs) {
     const session = await getSession(request.headers.get('Cookie'));
     const user = session.get('userId');
-    console.log('session', user);
     // ユーザーがログインしていない場合はログイン画面にリダイレクト
     if (!user) {
-        console.log(session);
         return redirect('/login');
     }
     const userData = await getUser(user);
@@ -73,7 +71,6 @@ export const action: ActionFunction = async ({ request }: ActionFunctionArgs) =>
     if (avatar) {
         updateData.imageurl = avatar;
     }
-    console.log('updateData', updateData);
     const updatedUser = await updateUser(user, updateData);
     if (!updatedUser) {
         return redirect('/profile');
@@ -117,8 +114,6 @@ export default function Profile() {
             reader.readAsDataURL(file);
             const supabase = createBrowserClient(env.SUPABASE_URL!, env.SUPABASE_ANON_KEY!);
             const { data, error } = await supabase.storage.from('images').upload(`${userData?.id}/avatar.png`, file, {upsert: true});
-            console.log(data);
-            console.log(error);
             if (error) {
                 toast({
                     title: 'アップロードエラー',
@@ -134,7 +129,6 @@ export default function Profile() {
             });
             // 成功した場合は公開URLを取得
             const { data: publicUrl } = await supabase.storage.from('images').getPublicUrl(`${userData?.id}/avatar.png`);
-            console.log(publicUrl);
             // 公開URLをデータベースに保存
             form.setValue('avatar', publicUrl.publicUrl);
         }

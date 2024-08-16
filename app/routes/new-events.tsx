@@ -36,13 +36,11 @@ export async function action({ request }: ActionFunctionArgs) {
     const session = await getSession(request.headers.get('Cookie'));
     const user = session.get('userId');
     const formData = await request.formData();
-    console.log(formData);
     const title = formData.get('title') as string;
     const description = formData.get('description') as string;
     const candidates: string[] = (formData.getAll('candidates') as string[]).flatMap(candidate =>
         candidate.split(',').map(date => new Date(date).toISOString()) // Convert Date to string
     );
-    console.log(candidates);
     const newevent = await createEvent(user, { title, description, candidates });
     if (newevent) {
         return redirect(`/events/${newevent.id}`);
@@ -77,7 +75,6 @@ export default function NewEvents() {
         }
         // 候補日時が未指定の場合はエラーを表示
         for (const candidate of candidates) {
-            console.log(candidate);
             const date = new Date(candidate);
             if (isNaN(date.getTime())) {
                 toast({

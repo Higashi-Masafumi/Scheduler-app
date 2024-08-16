@@ -53,7 +53,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export async function action({ request }: ActionFunctionArgs) {
     const headers = new Headers()
-    console.log("request", request);
     const supabase = createServerClient(process.env.VITE_SUPABASE_URL!, process.env.VITE_SUPABASE_ANON_KEY!, {
         cookies: {
             getAll() {
@@ -67,7 +66,6 @@ export async function action({ request }: ActionFunctionArgs) {
         },
     })
     const { data: { user } } = await supabase.auth.getUser()
-    console.log("user", user);
     if (user) {
         // 新規ユーザー登録
         const id = user.id as string;
@@ -119,16 +117,12 @@ export default function Login() {
             email: formData.email,
             password: formData.password,
         });
-        setLoading(false);
-        console.log(error);
         if (error) {
             form.setError('email', {
                 type: 'manual',
                 message: error.message,
             });
         }
-        console.log("user", user);
-        console.log("session", session);
         submit(formData, { method: 'post' });
     }
 

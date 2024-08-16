@@ -90,9 +90,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
         throw new Response("Event not found", { status: 500 });
     }
     const event = await getEvent(Number(eventId));
-    console.log(event);
     const chat = await getChat(Number(eventId));
-    console.log(chat);
     const env = {
         SUPABASE_URL: process.env.VITE_SUPABASE_URL!,
         SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY!,
@@ -108,10 +106,8 @@ export const action = async ({ request, params }: LoaderFunctionArgs) => {
     if (formData.get('abscence')) {
         const participantId = Number(formData.get('participantId'));
         const abscence = JSON.parse(formData.get('abscence') as string);
-        console.log("abscence", abscence);
         const remarks = formData.get('remarks') as string;
         const newabscence = await updateAbscence(participantId, abscence, remarks);
-        console.log(newabscence);
         if (newabscence) {
             return redirect(`/events/participate`);
         }
@@ -121,7 +117,6 @@ export const action = async ({ request, params }: LoaderFunctionArgs) => {
         const userId = session.get('userId');
         const message = formData.get('message') as string;
         const post = await postChat(eventId, userId, message);
-        console.log(post);
         if (post) {
             return redirect(`/events/${params.eventId}`);
         }
@@ -185,7 +180,6 @@ export default function EventTable() {
             table: 'Chats',
             filter: `eventId=eq.${eventId}`,
         }, (payload) => {
-            console.log("payload", payload);
             // このイベントに関連するチャットのみを取得
             const newChat = payload.new;
             // userIdからusername, imageurlを取得
@@ -278,7 +272,6 @@ export default function EventTable() {
 
     async function onSubmit(data: FormData) {
         const formData = new FormData();
-        console.log(data);
 
         formData.append('participantId', String(user?.id));
         formData.append('abscence', JSON.stringify(data.abscence));

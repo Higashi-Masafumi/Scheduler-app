@@ -23,7 +23,7 @@ import { Button } from "~/components/ui/button";
 import { Toaster } from "~/components/ui/toaster";
 import { getSession, destroySession } from "~/sessions";
 import { redirect } from "@remix-run/react";
-import { ActionFunctionArgs, MetaFunction, LoaderFunctionArgs } from "@remix-run/node";
+import { ActionFunctionArgs, MetaFunction, LoaderFunctionArgs, LinksFunction } from "@remix-run/node";
 import { useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 
@@ -38,10 +38,19 @@ export const meta: MetaFunction = ({ location }) => {
   ];
 };
 
+export const links: LinksFunction = () => {
+  return [
+    {
+      rel: "icon",
+      href: "/favicon.ico",
+      type: "image/x-icon",
+    },
+  ]
+};
+
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const path = request.url;
   const pathname = new URL(path).pathname;
-  console.log(pathname);
   return { pathname };
 }
 

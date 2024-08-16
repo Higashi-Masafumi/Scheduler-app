@@ -55,7 +55,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         // sessionを作成
         const session = await getSession(request.headers.get('Cookie'));
         session.set('userId', user.id as string);
-        console.log("session", session);
         return redirect("/", {
             headers: {
                 "Set-Cookie": await commitSession(session),
@@ -89,11 +88,8 @@ export default function ChangePassword() {
         const { data, error } = await supabase.auth.updateUser({
             password: formData.password,
         });
-        console.log("data", data);
-        console.log("error", error);
         if (error) {
             setLoading(false);
-            console.log(error);
             return;
         }
         submit(formData, { method: "post" });

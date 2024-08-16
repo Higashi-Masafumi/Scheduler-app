@@ -47,7 +47,6 @@ export async function loader() {
 
 export const action = async ({ request }: ActionFunctionArgs) => {
     const headers = new Headers()
-    console.log("request", request);
     const supabase = createServerClient(process.env.VITE_SUPABASE_URL!, process.env.VITE_SUPABASE_ANON_KEY!, {
         cookies: {
             getAll() {
@@ -61,13 +60,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         },
     })
     const { data: { user } } = await supabase.auth.getUser()
-    console.log(user);
     if (user) {
         const id = user.id as string;
         const session = await getSession(request.headers.get("Cookie"));
         // sessionにユーザーIDを保存
         session.set("userId", id);
-        console.log("Session data", session.data);
         // cookieにセッションを保存
         return redirect("/events",
             {
@@ -112,7 +109,6 @@ export default function Login() {
             form.setError("password", { message: error.message });
         }
         else {
-            console.log("data", data);
             submit(formData, { method: "post" });
         }
     }
