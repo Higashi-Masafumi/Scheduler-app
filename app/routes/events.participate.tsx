@@ -47,7 +47,6 @@ export const columns: ColumnDef<Event>[] = [
     accessorKey: "title",
     header: "イベント名",
     cell: ({ row }) => {
-      const isPending = false;
       return (
         <NavLink
           to={`/events/${row.original.eventId}`}
@@ -55,14 +54,15 @@ export const columns: ColumnDef<Event>[] = [
           className={({ isActive, isPending }) =>
             isPending ? "pending" : isActive ? "active" : ""
           }>
-          {isPending ?
-            <Button variant="secondary" disabled>
-              イベントへ遷移中...
-            </Button>
-            :
-            <Button variant="secondary">
-              {row.original.title}
-            </Button>}
+          <Button 
+            variant="secondary"
+            onClick={(event) => {
+              const target = event.target as HTMLButtonElement;
+              target.disabled = true;
+            }
+          }>
+            {row.original.title}
+          </Button>
         </NavLink>
       );
     },

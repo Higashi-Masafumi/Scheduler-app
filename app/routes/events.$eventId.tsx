@@ -426,7 +426,7 @@ export default function EventTable() {
                         <Separator />
                         <div className="flex flex-col">
                             <div className="grid gap-4 py-2">
-                                <ScrollArea className={chatInputFocused ? "h-[230px] sm:h-[500px]" : "h-[400px] sm:h-[600px]"}>
+                                <ScrollArea className={chatInputFocused ? "h-[220px] sm:h-[500px]" : "h-[400px] sm:h-[600px]"}>
                                     {formattedChat.map(chat => {
                                         if (chat.userId === userId) {
                                             return <OwnChatBubble key={chat.createdAt} avatar={chat.imageurl} username={chat.username} message={chat.message} createdAt={chat.createdAt_format} />

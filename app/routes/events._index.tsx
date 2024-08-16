@@ -17,7 +17,7 @@ import {
     AlertDialogTrigger,
 } from '~/components/ui/alert-dialog';
 import { deleteEvent } from '~/db/server.event';
-import { Alert } from '~/components/ui/alert';
+import { Loader2 } from 'lucide-react';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
     const session = await getSession(request.headers.get('Cookie'));
@@ -50,24 +50,23 @@ export const columns: ColumnDef<Event>[] = [
         accessorKey: "title",
         header: "イベント名",
         cell: ({ row }) => {
-            const isPending = false;
             return (
                 <NavLink
                     to={`/events/${row.original.id}`}
                     prefetch="viewport"
                     className={({ isActive, isPending }) =>
                         isPending ? "pending" : isActive ? "active" : ""
-                    }>
-                    {/*タップされたらdisabledになる*/}
-                    {isPending ? (
-                        <Button variant="secondary" disabled>
-                            イベントへ遷移中...
-                        </Button>
-                    ) : (
-                        <Button variant="secondary">
-                            {row.original.title}
-                        </Button>
-                    )}
+                    }
+                >
+                    <Button 
+                        variant="secondary" 
+                        onClick={(event) => {
+                            const target = event.target as HTMLButtonElement;
+                            target.disabled = true;
+                        }}
+                    >
+                        {row.original.title}
+                    </Button>
                 </NavLink>
             )
         }

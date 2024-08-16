@@ -26,6 +26,7 @@ import { redirect, useNavigation } from "@remix-run/react";
 import { ActionFunctionArgs, MetaFunction, LoaderFunctionArgs, LinksFunction } from "@remix-run/node";
 import { useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
+import stylesheet from "~/tailwind.css?url";
 
 export const meta: MetaFunction = ({ location }) => {
   const path = location.pathname;
@@ -45,6 +46,10 @@ export const links: LinksFunction = () => {
       href: "/favicon.ico",
       type: "image/x-icon",
     },
+    {
+      rel: "stylesheet",
+      href: stylesheet,
+    }
   ]
 };
 
