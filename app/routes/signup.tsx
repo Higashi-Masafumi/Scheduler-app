@@ -46,6 +46,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         env: {
             SUPABASE_URL: process.env.VITE_SUPABASE_URL,
             SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY,
+            APP_URL: process.env.VITE_APP_URL,
         }
     };
 }
@@ -140,7 +141,7 @@ export default function Login() {
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
-                redirectTo: 'http://localhost:5173/auth/callback',
+                redirectTo: `${env.APP_URL}/auth/callback`,
             }
         });
     }
@@ -168,7 +169,7 @@ export default function Login() {
                                 name="email"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Email</FormLabel>
+                                        <FormLabel>メールアドレス</FormLabel>
                                         <FormControl>
                                             <Input
                                                 placeholder="shadcn@gmail.com"
@@ -188,7 +189,7 @@ export default function Login() {
                                 name="password"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Password</FormLabel>
+                                        <FormLabel>パスワード</FormLabel>
                                         <FormControl>
                                             <Input
                                                 type="password"
