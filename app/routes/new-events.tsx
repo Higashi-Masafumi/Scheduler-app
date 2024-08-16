@@ -215,7 +215,6 @@ export default function NewEvents() {
                                                     newCandidates[index] = new Date(String(event.value)).toISOString();
                                                     // 候補日程をソートしておく
                                                     newCandidates.sort();
-                                                    console.log(newCandidates);
                                                     setCandidates(newCandidates);
                                                 }
                                             }}

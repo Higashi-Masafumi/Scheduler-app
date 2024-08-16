@@ -6,7 +6,7 @@ import { getSession, commitSession } from '~/sessions'
 export async function loader({ request }: LoaderFunctionArgs) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
-  const next = requestUrl.searchParams.get('next') || '/'
+  const next = requestUrl.searchParams.get('next') || '/events'
   const headers = new Headers()
 
   if (code) {
@@ -36,7 +36,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
             if (newuser) {
                 const session = await getSession(request.headers.get('Cookie'));
                 session.set('userId', id);
-                return redirect("/events", {
+                return redirect(next, {
                     headers: {
                         "Set-Cookie": await commitSession(session),
                 }

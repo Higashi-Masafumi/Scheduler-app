@@ -132,6 +132,7 @@ export default function Login() {
         setLoading(true);
         // supabaseのクライアントを作成
         const supabase = createBrowserClient(env.SUPABASE_URL!, env.SUPABASE_ANON_KEY!);
+        console.log(`${env.APP_URL}/auth/callback`)
         // googleでサインアップ,リダイレクト先でsessionを設定して、ユーザーを作成
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
