@@ -61,7 +61,7 @@ export const action: ActionFunction = async ({ request }: ActionFunctionArgs) =>
     const name = formData.get('name') as string;
     const bio = formData.get('bio') as string;
     const avatar = formData.get('avatar') as string;
-    const updateData : {name?: string, bio?: string, imageurl?: string} = {};
+    const updateData: { name?: string, bio?: string, imageurl?: string } = {};
     if (name) {
         updateData.name = name;
     }
@@ -94,9 +94,11 @@ export default function Profile() {
     const { toast } = useToast();
     const submit = useSubmit();
     const [previewImage, setPreviewImage] = useState(userData?.imageurl ?? '');
+    const [loading, setLoading] = useState(false);
     const fileInput = useRef<HTMLInputElement | null>(null);
 
     async function onSubmit(formData: FormData) {
+        setLoading(true);
         const data = new FormData();
         formData.name && data.append('name', formData.name);
         formData.bio && data.append('bio', formData.bio);
@@ -105,6 +107,12 @@ export default function Profile() {
     }
 
     async function handleAvatarChange() {
+        // ファイルをアップロードしていることをユーザーに通知
+        toast({
+            title: 'アップロード中',
+            description: '画像をアップロードしています',
+            action: <ToastAction altText="閉じる">閉じる</ToastAction>
+        });
         const file = fileInput.current?.files?.[0];
         if (file) {
             const reader = new FileReader();
@@ -113,7 +121,7 @@ export default function Profile() {
             };
             reader.readAsDataURL(file);
             const supabase = createBrowserClient(env.SUPABASE_URL!, env.SUPABASE_ANON_KEY!);
-            const { data, error } = await supabase.storage.from('images').upload(`${userData?.id}/avatar.png`, file, {upsert: true});
+            const { data, error } = await supabase.storage.from('images').upload(`${userData?.id}/avatar.png`, file, { upsert: true });
             if (error) {
                 toast({
                     title: 'アップロードエラー',
@@ -194,7 +202,15 @@ export default function Profile() {
                                     )}
                                 />
                             </div>
-                            <Button type="submit">プロフィール情報を保存</Button>
+                            {loading ? (
+                                <Button disabled type="submit">
+                                    更新中
+                                </Button>
+                            ) : (
+                                <Button type="submit">
+                                    プロフィールを更新
+                                </Button>
+                            )}
                         </form>
                     </CardContent>
                 </Card>

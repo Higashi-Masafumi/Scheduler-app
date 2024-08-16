@@ -28,6 +28,7 @@ import {
 import { updateEvent } from '~/db/server.event';
 import { Datepicker, localeJa, setOptions } from "@mobiscroll/react";
 import '@mobiscroll/react/dist/css/mobiscroll.min.css';
+import { set } from 'date-fns';
 
 setOptions({
     theme: 'ios',

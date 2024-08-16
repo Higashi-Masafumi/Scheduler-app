@@ -111,6 +111,7 @@ export default function Login() {
         else {
             submit(formData, { method: "post" });
         }
+        setLoading(false);
     }
 
     // Googleアカウントでログイン、リダイレクト先でセッションを設定

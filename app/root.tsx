@@ -22,7 +22,7 @@ import {
 import { Button } from "~/components/ui/button";
 import { Toaster } from "~/components/ui/toaster";
 import { getSession, destroySession } from "~/sessions";
-import { redirect } from "@remix-run/react";
+import { redirect, useNavigation } from "@remix-run/react";
 import { ActionFunctionArgs, MetaFunction, LoaderFunctionArgs, LinksFunction } from "@remix-run/node";
 import { useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
@@ -231,16 +231,24 @@ export function WelcomeNavigationHeader() {
     </header>
   );
 }
-  
+
 
 
 export default function App() {
   const { pathname } = useLoaderData<typeof loader>();
+  const navigation = useNavigation();
   return (
     <div>
-      {pathname === "/login" || pathname === "/" || pathname === "/signup" ? <WelcomeNavigationHeader/> : <NavigationHeader />}
+      {pathname === "/login" || pathname === "/" || pathname === "/signup" ? <WelcomeNavigationHeader /> : <NavigationHeader />}
       <main>
-        <Outlet />
+        <div
+          className={
+            navigation.state === "loading" ? "loading" : ""
+          }
+          id="detail"
+        >
+          <Outlet />
+        </div>
       </main>
       <Toaster />
     </div>

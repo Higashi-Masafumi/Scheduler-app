@@ -62,7 +62,7 @@ import {
     HoverCardContent,
     HoverCardTrigger,
 } from '~/components/ui/hover-card';
-import { Copy, CopyCheck, Scroll } from 'lucide-react';
+import { Copy, CopyCheck, Loader2 } from 'lucide-react';
 
 // Zod schemaの定義
 const formSchema = z.object({
@@ -80,7 +80,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     const session = await getSession(request.headers.get('Cookie'));
     const userId = session.get('userId');
     if (!userId) {
-        return redirect('/login');
+        return redirect('/');
     }
     const eventId = Number(params.eventId);
     // イベントが存在するか確認して、存在する場合で参加していない時に参加する
@@ -154,6 +154,8 @@ export default function EventTable() {
     const revalidator = useRevalidator();
     const navigate = useNavigate();
     const [copied, setCopied] = useState(false);
+    const [chatInputFocused, setChatInputFocused] = useState(false);
+    const [loading, setLoading] = useState(false);
     const { toast } = useToast();
     const supabase = createBrowserClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
     // 各候補日程の出席者数をカウントした配列
@@ -272,7 +274,7 @@ export default function EventTable() {
 
     async function onSubmit(data: FormData) {
         const formData = new FormData();
-
+        setLoading(true);
         formData.append('participantId', String(user?.id));
         formData.append('abscence', JSON.stringify(data.abscence));
         formData.append('remarks', data.remarks);
@@ -399,7 +401,6 @@ export default function EventTable() {
         }
     ];
 
-
     return (
         <div className="container mx-auto py-10 px-5">
             <div className="flex justify-between items-center mb-4">
@@ -412,46 +413,49 @@ export default function EventTable() {
                         <SheetHeader className="py-3">
                             <SheetTitle>{event.title}</SheetTitle>
                             <SheetDescription>
-                                イベントについて話し合うことができる<br />リアルタイムグループチャットです<br />
-                                一度送信したメッセージは削除できません
+                                イベントについて話し合いましょう
                             </SheetDescription>
                         </SheetHeader>
                         <Separator />
-                        <div className="flex flex-col h-[calc(100vh-200px)] sm:h-[calc(100vh-250px)]">
-                        <div className="grid gap-4 py-4">
-                            <ScrollArea className="h-[500px] sm:h-[500px]">
-                                {formattedChat.map(chat => {
-                                    if (chat.userId === userId) {
-                                        return <OwnChatBubble key={chat.createdAt} avatar={chat.imageurl} username={chat.username} message={chat.message} createdAt={chat.createdAt_format} />
-                                    }
-                                    else {
-                                        return <OtherChatBubble key={chat.createdAt} avatar={chat.imageurl} username={chat.username} message={chat.message} createdAt={chat.createdAt_format} />
-                                    }
-                                })}
-                                <ScrollBar orientation="vertical" />
-                            </ScrollArea>
-                        </div>
-                        <Separator />
-                        <SheetFooter className="mt-4">
-                            <Form {...chatForm}>
-                                <form onSubmit={chatForm.handleSubmit(onChatSubmit)}>
-                                    <div className="flex items-center">
-                                        <FormField
-                                            control={chatForm.control}
-                                            name="message"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormControl>
-                                                        <Input {...field} placeholder="メッセージを入力" className="w-[250px] sm:w-[270px] mr-2" />
-                                                    </FormControl>
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <Button type="submit" className="px-3">送信</Button>
-                                    </div>
-                                </form>
-                            </Form>
-                        </SheetFooter>
+                        <div className="flex flex-col">
+                            <div className="grid gap-4 py-4">
+                                <ScrollArea className={chatInputFocused ? "h-[300px] sm:h-[500px]" : "h-[500px] sm:h-[600px]"}>
+                                    {formattedChat.map(chat => {
+                                        if (chat.userId === userId) {
+                                            return <OwnChatBubble key={chat.createdAt} avatar={chat.imageurl} username={chat.username} message={chat.message} createdAt={chat.createdAt_format} />
+                                        }
+                                        else {
+                                            return <OtherChatBubble key={chat.createdAt} avatar={chat.imageurl} username={chat.username} message={chat.message} createdAt={chat.createdAt_format} />
+                                        }
+                                    })}
+                                    <ScrollBar orientation="vertical" />
+                                </ScrollArea>
+                            </div>
+                            <Separator />
+                            <SheetFooter className="mt-4">
+                                <Form {...chatForm}>
+                                    <form onSubmit={chatForm.handleSubmit(onChatSubmit)}>
+                                        <div className="flex items-center">
+                                            <FormField
+                                                control={chatForm.control}
+                                                name="message"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormControl>
+                                                            <Input {...field}
+                                                                placeholder="メッセージを入力"
+                                                                className="w-[250px] sm:w-[270px] mr-2"
+                                                                onFocus={() => setChatInputFocused(true)}
+                                                                onBlur={() => setChatInputFocused(false)} />
+                                                        </FormControl>
+                                                    </FormItem>
+                                                )}
+                                            />
+                                            <Button type="submit" className="px-3">送信</Button>
+                                        </div>
+                                    </form>
+                                </Form>
+                            </SheetFooter>
                         </div>
                     </SheetContent>
                 </Sheet>
@@ -493,7 +497,16 @@ export default function EventTable() {
                         <DataTable columns={columns} data={participants} />
                         <ScrollBar orientation="horizontal" />
                     </ScrollArea>
-                    <Button type="submit" className="mt-8">出席情報を更新する</Button>
+                    {loading ? (
+                        <Button type="submit" className="mt-5" disabled>
+                            <Loader2 className="w-6 h-6 mr-2" />
+                            出席情報を更新中
+                        </Button>
+                    ) : (
+                        <Button type="submit" className="mt-5">
+                            出席情報を更新
+                        </Button>
+                    )}
                 </form>
             </Form>
         </div>
