@@ -88,7 +88,7 @@ export const columns: ColumnDef<Event>[] = [
                 method="post"
               >
                 <input type="hidden" name="id" value={row.original.id} />
-                <AlertDialogAction type="submit">退会</AlertDialogAction>
+                <AlertDialogAction type="submit" className="w-full">退会</AlertDialogAction>
               </Form>
             </AlertDialogFooter>
           </AlertDialogContent>

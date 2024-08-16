@@ -75,6 +75,9 @@ export const columns: ColumnDef<Event>[] = [
                     <AlertDialogContent>
                         <AlertDialogHeader>
                             <AlertDialogTitle>イベントを編集しますか?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                編集画面に遷移します
+                            </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                             <AlertDialogCancel>キャンセル</AlertDialogCancel>

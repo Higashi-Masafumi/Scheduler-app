@@ -123,6 +123,7 @@ export default function Login() {
                 message: error.message,
             });
         }
+        setLoading(false);
         submit(formData, { method: 'post' });
     }
 

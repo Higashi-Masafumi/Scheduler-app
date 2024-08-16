@@ -14,6 +14,13 @@ import { redirect } from '@remix-run/react';
 import { LoaderFunctionArgs, ActionFunctionArgs } from '@remix-run/node';
 import { useState } from 'react';
 import { createEvent } from '~/db/server.event';
+import { Datepicker, localeJa, setOptions } from "@mobiscroll/react";
+import '@mobiscroll/react/dist/css/mobiscroll.min.css';
+
+setOptions({
+    theme: 'ios',
+    themeVariant: 'light'
+});
 
 // Zod schemaの定義
 const formSchema = z.object({
@@ -59,6 +66,7 @@ export default function NewEvents() {
     });
 
     const [candidates, setCandidates] = useState<string[]>([]);
+    const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const { toast } = useToast();
     const submit = useSubmit();
 
@@ -128,32 +136,84 @@ export default function NewEvents() {
                                 )}
                             />
                         </div>
-                        <div className="flex items-center space-y-4 my-4">
-                            <Label className="whitespace-nowrap mr-3">候補日程追加</Label>
-                            <Input
-                                type="datetime-local"
-                                onChange={(e) => setCandidates([...candidates, e.target.value])}
-                                className="flex-grow max-w-xs"
+                        <div className="flex-col space-y-4 my-4">
+                            <Label className="whitespace-nowrap mr-3">候補日程を選択して追加</Label>
+                            <Datepicker
+                                locale={localeJa}
+                                responsive={{
+                                    xsmall: {
+                                        controls: ['datetime'],
+                                        display: "center",
+                                        touchUi: true
+                                    },
+                                    small: {
+                                        controls: ['calendar', 'time'],
+                                        display: "top",
+                                        touchUi: true
+                                    },
+                                    custom: {
+                                        breakpoint: 600,
+                                        controls: ['calendar', 'time'],
+                                        display: "top",
+                                        touchUi: false
+                                    }
+                                }}
+                                value={selectedDate ? new Date(selectedDate) : null}
+                                inputComponent="input"
+                                inputProps={{
+                                    placeholder: '日時を選択',
+                                    className: "border rounded-md p-2", // Added the missing comma here
+                                }}
+                                onChange={(event) => {
+                                    if (event && event.value) {
+                                        setSelectedDate(event.value.toString());
+                                        setCandidates([...candidates, new Date(String(event.value)).toISOString()]);
+                                        setSelectedDate(null);
+                                    }
+                                }}
                             />
-                            <Button type="button" onClick={() => setCandidates([...candidates, ''])}
-                                className="ml-4">追加</Button>
                         </div>
                         <div className="space-y-2 my-4">
                             <Label>選択済み候補日程一覧</Label>
                             <ul className="space-y-2">
                                 {candidates.map((candidate, index) => (
                                     <li key={index} className="flex items-center space-x-2">
-                                        <Input
-                                            type="datetime-local"
-                                            value={candidate}
-                                            onChange={(e) => {
-                                                const newCandidates = [...candidates];
-                                                newCandidates[index] = e.target.value;
-                                                // 候補日時をソート
-                                                newCandidates.sort();
-                                                setCandidates(newCandidates);
+                                        <Datepicker
+                                            locale={localeJa}
+                                            responsive={{
+                                                xsmall: {
+                                                    controls: ['datetime'],
+                                                    display: "center",
+                                                    touchUi: true
+                                                },
+                                                small: {
+                                                    controls: ['calendar', 'time'],
+                                                    display: "center",
+                                                    touchUi: true
+                                                },
+                                                custom: {
+                                                    breakpoint: 600,
+                                                    controls: ['calendar', 'time'],
+                                                    display: "top",
+                                                    touchUi: true
+                                                }
                                             }}
-                                            className="flex-grow max-w-xs"
+                                            inputComponent="input"
+                                            inputProps={{
+                                                placeholder: '日時を選択',
+                                                className: "border rounded-md p-2"
+                                            }}
+                                            value={new Date(candidate)}
+                                            onChange={(event) => {
+                                                if (event && event.value) {
+                                                    const newCandidates = [...candidates];
+                                                    newCandidates[index] = new Date(String(event.value)).toISOString();
+                                                    // 候補日程をソートしておく
+                                                    newCandidates.sort();
+                                                    console.log(newCandidates);
+                                                    setCandidates(newCandidates);
+                                                }
+                                            }}
                                         />
                                         <Button type="button" onClick={() => {
                                             const newCandidates = [...candidates];

@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
+    "@mobiscroll/react": "npm:@mobiscroll/react-next-trial@^5.31.2",
     "@prisma/client": "^5.17.0",
     "@prisma/extension-pulse": "^1.2.0",
     "@radix-ui/react-alert-dialog": "^1.1.1",
@@ -22,6 +23,7 @@
     "@radix-ui/react-hover-card": "^1.1.1",
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-navigation-menu": "^1.2.0",
+    "@radix-ui/react-popover": "^1.1.1",
     "@radix-ui/react-scroll-area": "^1.1.0",
     "@radix-ui/react-select": "^2.1.1",
     "@radix-ui/react-separator": "^1.1.0",
@@ -36,10 +38,12 @@
     "@tanstack/react-table": "^8.19.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "date-fns": "^3.6.0",
     "isbot": "^4.1.0",
     "lucide-react": "^0.407.0",
     "next-themes": "^0.3.0",
     "react": "^18.2.0",
+    "react-day-picker": "^8.10.1",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.52.1",
     "sonner": "^1.5.0",
@@ -48,7 +52,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@remix-run/dev": "^2.10.2",
+    "@remix-run/dev": "^2.11.2",
     "@types/react": "^18.2.20",
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.7.4",
