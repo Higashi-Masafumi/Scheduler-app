@@ -61,6 +61,7 @@ export default function ResetPassword() {
             });
         if (error) {
             setLoading(false);
+            form.setError("email", { message: error.message });
             return;
         }
     }
