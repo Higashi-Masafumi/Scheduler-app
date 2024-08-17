@@ -210,7 +210,7 @@ export default function EventTable() {
                     action: <ToastAction altText="閉じる">閉じる</ToastAction>
                 })
             }
-            navigate('.', { replace: true });
+            navigate(`/events/${eventId}`, { replace: true });
         }).subscribe()
         return () => {
             supabase.removeChannel(channel)

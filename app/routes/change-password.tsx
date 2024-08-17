@@ -55,7 +55,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         // sessionを作成
         const session = await getSession(request.headers.get('Cookie'));
         session.set('userId', user.id as string);
-        return redirect("/", {
+        return redirect("/events", {
             headers: {
                 "Set-Cookie": await commitSession(session),
             }
