@@ -143,12 +143,12 @@ export const updateAbscence = async function (participantId: number, abscence: s
 
 // delete event
 export const deleteEvent = async function (eventId: number) {
-    await prisma.participants.deleteMany({
+    await prisma.chats.deleteMany({
         where: {
             eventId
         }
     });
-    await prisma.chats.deleteMany({
+    await prisma.participants.deleteMany({
         where: {
             eventId
         }

@@ -162,7 +162,7 @@ export default function HoldingEvents() {
                                     </Button>
                                     :
                                     <AlertDialogAction
-                                        className="w-full"
+                                        className="w-auto"
                                         type="submit"
                                         onClick={() => {
                                             setLoading2(true);

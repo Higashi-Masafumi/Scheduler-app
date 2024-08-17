@@ -68,7 +68,7 @@ export const signIn = async function (id: string, email: string) {
   // participate in event
   export const participateinEvent = async function (userId: string, eventId: number) {
     // まずイベントが存在するかを確認
-    const findEvent = await prisma.events.findFirst({
+    const findEvent = await prisma.events.findUnique({
       where: {
         id: eventId,
       },
