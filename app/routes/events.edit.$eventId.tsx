@@ -265,7 +265,7 @@ export default function EditEvents() {
                                     <AlertDialogCancel>キャンセル</AlertDialogCancel>
                                     {loading ? (
                                         <Button disabled>
-                                            <Loader2 className="w-6 h-6" />
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                             イベント情報を更新中
                                         </Button>
                                     ) : (

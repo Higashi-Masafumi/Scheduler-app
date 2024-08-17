@@ -506,7 +506,7 @@ export default function EventTable() {
                     </ScrollArea>
                     {loading ? (
                         <Button type="submit" className="mt-5" disabled>
-                            <Loader2 className="w-6 h-6 mr-2" />
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                             出席情報を更新中
                         </Button>
                     ) : (

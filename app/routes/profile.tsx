@@ -28,6 +28,7 @@ import {
 } from "~/components/ui/avatar";
 import { ToastAction } from "~/components/ui/toast"
 import { useToast } from "~/components/ui/use-toast"
+import { Loader2 } from 'lucide-react';
 
 
 // Zod schemaの定義
@@ -204,6 +205,7 @@ export default function Profile() {
                             </div>
                             {loading ? (
                                 <Button disabled type="submit">
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                     更新中
                                 </Button>
                             ) : (

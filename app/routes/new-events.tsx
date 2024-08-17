@@ -16,6 +16,7 @@ import { useState } from 'react';
 import { createEvent } from '~/db/server.event';
 import { Datepicker, localeJa, setOptions } from "@mobiscroll/react";
 import '@mobiscroll/react/dist/css/mobiscroll.min.css';
+import { Loader2 } from 'lucide-react';
 
 setOptions({
     theme: 'ios',
@@ -231,7 +232,10 @@ export default function NewEvents() {
                             </ul>
                         </div>
                         {loading ? (
-                            <Button disabled type="submit">イベントを作成中</Button>
+                            <Button disabled type="submit">
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                イベントを作成中
+                            </Button>
                         ) : (
                             <Button type="submit">イベントを作成</Button>
                         )}

@@ -90,6 +90,10 @@ export default function ChangePassword() {
         });
         if (error) {
             setLoading(false);
+            form.setError("password", {
+                type: "manual",
+                message: error.message,
+            });
             return;
         }
         submit(formData, { method: "post" });
