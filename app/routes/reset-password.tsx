@@ -71,12 +71,12 @@ export default function ResetPassword() {
                 <CardHeader className="space-y-1">
                     <CardTitle className="text-2xl font-bold">パスワードのリセット</CardTitle>
                     <CardDescription>
-                        パスワードリセットメールしました。メールを確認してください
+                        パスワードリセットメールを送信しました。メールボックスを確認してください
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="flex items-center justify-center">
-                        <Send className="w-16 h-16 text-green-400 animate-spin" />
+                        <Send className="w-16 h-16 text-blue-600" />
                     </div>
                     <div className="text-center mt-4">
                         メールを確認できない場合は、迷惑メールフォルダをご確認ください
