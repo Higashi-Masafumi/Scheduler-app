@@ -37,6 +37,19 @@ export const meta: MetaFunction = ({ location }) => {
       name: "description",
       content: "簡単に日程調整を行い、イベントを円滑に進めましょう。リアルタイムのチャットで参加者と円滑にコミュニケーションをとりましょう。"
     },
+    {
+      "tagName": "link",
+      "rel": "canonical",
+      "href": `${process.env.VITE_APP_URL}`
+    },
+    {
+      property: "og:title",
+      content: "調整くん",
+    },
+    {
+      property: "og;image",
+      content: `https://ezuwhvouykftljbnfxhz.supabase.co/storage/v1/object/public/images/b88d052b-796e-4af0-adea-45e60a1162b8/chouseikunn.png`
+    },
   ];
 };
 
