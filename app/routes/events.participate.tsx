@@ -139,7 +139,7 @@ export default function Index() {
             }>
             {loading ?
               <Button variant="secondary" disabled>
-                <Loader2 />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 イベントへ遷移中
               </Button>
               :

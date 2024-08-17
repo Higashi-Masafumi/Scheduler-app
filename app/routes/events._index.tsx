@@ -80,7 +80,7 @@ export default function HoldingEvents() {
                     >
                         {loading ?
                             <Button variant="secondary" disabled>
-                                <Loader2 />
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                 イベントへ遷移中
                             </Button>
                             :
@@ -121,7 +121,7 @@ export default function HoldingEvents() {
                                 <NavLink to={`/events/edit/${row.original.id}`}>
                                     {loading1 ?
                                         <Button disabled className="w-full">
-                                            <Loader2 />
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                             編集画面へ遷移中
                                         </Button>
                                         :
@@ -157,7 +157,7 @@ export default function HoldingEvents() {
                                 <AlertDialogCancel>キャンセル</AlertDialogCancel>
                                 {loading2 ?
                                     <Button disabled className="w-full">
-                                        <Loader2 />
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                         削除中
                                     </Button>
                                     :
