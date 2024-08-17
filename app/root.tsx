@@ -48,8 +48,12 @@ export const meta: MetaFunction = ({ location }) => {
     },
     {
       property: "og;image",
-      content: `https://ezuwhvouykftljbnfxhz.supabase.co/storage/v1/object/public/images/b88d052b-796e-4af0-adea-45e60a1162b8/chouseikunn.png`
+      content: `./chouseikunn.png`
     },
+    {
+      property : "og:url",
+      content: `${process.env.VITE_APP_URL}/signup`
+    }
   ];
 };
 
