@@ -76,6 +76,7 @@ export default function NewEvents() {
         const formDataWithCandidates = { ...formData, candidates };
         // 候補日時を選択していない場合はエラーを表示
         if (candidates.length === 0) {
+            setLoading(false);
             toast({
                 title: '候補日時が選択されていません',
                 description: '候補日時を選択してください',
@@ -87,6 +88,7 @@ export default function NewEvents() {
         for (const candidate of candidates) {
             const date = new Date(candidate);
             if (isNaN(date.getTime())) {
+                setLoading(false);
                 toast({
                     title: '日時未指定の候補日時があります',
                     description: '候補日時を指定してください',

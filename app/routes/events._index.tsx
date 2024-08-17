@@ -1,5 +1,5 @@
 import { Button } from '~/components/ui/button';
-import { NavLink, useLoaderData, Form, redirect } from '@remix-run/react';
+import { NavLink, useLoaderData, Form, redirect, useSubmit } from '@remix-run/react';
 import { getSession } from '~/sessions';
 import { getHoldingEvents } from '~/db/server.event';
 import { LoaderFunctionArgs, ActionFunctionArgs } from '@remix-run/node';
@@ -18,6 +18,7 @@ import {
 } from '~/components/ui/alert-dialog';
 import { deleteEvent } from '~/db/server.event';
 import { Loader2 } from 'lucide-react';
+import { useState } from 'react';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
     const session = await getSession(request.headers.get('Cookie'));
@@ -33,7 +34,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 export const action = async ({ request }: ActionFunctionArgs) => {
     const formData = await request.formData();
     const id = Number(formData.get('id'));
-    await deleteEvent(id);
+    const delted = await deleteEvent(id);
+    if (!delted) {
+        return redirect('/events');
+    }
     return redirect('/events');
 };
 
@@ -45,98 +49,139 @@ export type Event = {
     holder: string;
 };
 
-export const columns: ColumnDef<Event>[] = [
-    {
-        accessorKey: "title",
-        header: "イベント名",
-        cell: ({ row }) => {
-            return (
-                <NavLink
-                    to={`/events/${row.original.id}`}
-                    prefetch="viewport"
-                    className={({ isActive, isPending }) =>
-                        isPending ? "pending" : isActive ? "active" : ""
-                    }
-                >
-                    <Button 
-                        variant="secondary" 
-                        onClick={(event) => {
-                            const target = event.target as HTMLButtonElement;
-                            target.disabled = true;
-                        }}
-                    >
-                        {row.original.title}
-                    </Button>
-                </NavLink>
-            )
-        }
-    },
-    {
-        accessorKey: "createdAt",
-        header: "作成日",
-        cell: ({ row }) => {
-            return <span>{new Date(row.original.createdAt).toLocaleDateString()}</span>
-        }
-    },
-    {
-        id: "actons",
-        cell: ({ row }) => {
-            return (
-                <AlertDialog>
-                    <AlertDialogTrigger>
-                        <Button>編集</Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>イベントを編集しますか?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                編集画面に遷移します
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>キャンセル</AlertDialogCancel>
-                            <AlertDialogAction>
-                                <NavLink to={`/events/edit/${row.original.id}`}>
-                                    編集
-                                </NavLink>
-                            </AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-            )
-        }
-    },
-    {
-        id: "actions",
-        cell: ({ row }) => {
-            return (
-                <AlertDialog>
-                    <AlertDialogTrigger>
-                        <Button variant="destructive">削除</Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>イベントに関連する情報を全て削除しますか？</AlertDialogTitle>
-                        </AlertDialogHeader>
-                        <AlertDialogDescription>
-                            この操作は取り消せません。本当に削除しますか？
-                        </AlertDialogDescription>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>キャンセル</AlertDialogCancel>
-                            <Form method="post">
-                                <input type="hidden" name="id" value={row.original.id} />
-                                <AlertDialogAction type="submit" className="w-full">削除</AlertDialogAction>
-                            </Form>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-            )
-        }
-    }
-];
 
 export default function HoldingEvents() {
     const holdingEvents = useLoaderData<{ holdingEvents: Event[] }>();
+    // 編集ダイアログの開閉状態を管理
+    const [open1, setOpen1] = useState<boolean>(false);
+    // 削除ダイアログの開閉状態を管理
+    const [open2, setOpen2] = useState<boolean>(false);
+    // イベントへ遷移中のローディング状態を管理
+    const [loading, setLoading] = useState<boolean>(false);
+    // 編集ボタンをクリックしたときのローディング状態を管理
+    const [loading1, setLoading1] = useState<boolean>(false);
+    // 削除ボタンをクリックしたときのローディング状態を管理
+    const [loading2, setLoading2] = useState<boolean>(false);
+
+    const submit = useSubmit();
+
+    const columns: ColumnDef<Event>[] = [
+        {
+            accessorKey: "title",
+            header: "イベント名",
+            cell: ({ row }) => {
+                return (
+                    <NavLink
+                        to={`/events/${row.original.id}`}
+                        prefetch="viewport"
+                        className={({ isActive, isPending }) =>
+                            isPending ? "pending" : isActive ? "active" : ""
+                        }
+                    >
+                        {loading ?
+                            <Button variant="secondary" disabled>
+                                <Loader2 />
+                                イベントへ遷移中
+                            </Button>
+                            :
+                            <Button
+                                variant="secondary"
+                                onClick={() => setLoading(true)}
+                            >
+                                {row.original.title}
+                            </Button>}
+                    </NavLink>
+                )
+            }
+        },
+        {
+            accessorKey: "createdAt",
+            header: "作成日",
+            cell: ({ row }) => {
+                return <span>{new Date(row.original.createdAt).toLocaleDateString()}</span>
+            }
+        },
+        {
+            id: "actons",
+            cell: ({ row }) => {
+                return (
+                    <AlertDialog open={loading1 === true ? true : open1} onOpenChange={setOpen1}>
+                        <AlertDialogTrigger>
+                            <Button>編集</Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>イベントを編集しますか?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    編集画面に遷移します
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>キャンセル</AlertDialogCancel>
+                                <NavLink to={`/events/edit/${row.original.id}`}>
+                                    {loading1 ?
+                                        <Button disabled className="w-full">
+                                            <Loader2 />
+                                            編集画面へ遷移中
+                                        </Button>
+                                        :
+                                        <AlertDialogAction
+                                            className="w-full"
+                                            onClick={() => setLoading1(true)}
+                                        >
+                                            編集
+                                        </AlertDialogAction>}
+                                </NavLink>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                )
+            }
+        },
+        {
+            id: "actions",
+            cell: ({ row }) => {
+                return (
+                    <AlertDialog open={loading2 === true ? true : open2} onOpenChange={setOpen2}>
+                        <AlertDialogTrigger>
+                            <Button variant="destructive">削除</Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>イベントに関連する情報を全て削除しますか？</AlertDialogTitle>
+                            </AlertDialogHeader>
+                            <AlertDialogDescription>
+                                この操作は取り消せません。本当に削除しますか？
+                            </AlertDialogDescription>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>キャンセル</AlertDialogCancel>
+                                {loading2 ?
+                                    <Button disabled className="w-full">
+                                        <Loader2 />
+                                        削除中
+                                    </Button>
+                                    :
+                                    <AlertDialogAction
+                                        className="w-full"
+                                        type="submit"
+                                        onClick={() => {
+                                            setLoading2(true);
+                                            const formData = new FormData();
+                                            formData.append('id', row.original.id.toString());
+                                            submit(formData, { method: 'post' });
+                                        }
+                                        }
+                                    >
+                                        削除
+                                    </AlertDialogAction>}
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog >
+                )
+            }
+        }
+    ];
+
     return (
         <div className="container mx-auto py-10">
             <div className="text-sm pb-4">

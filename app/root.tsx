@@ -26,6 +26,7 @@ import { redirect, useNavigation } from "@remix-run/react";
 import { ActionFunctionArgs, MetaFunction, LoaderFunctionArgs, LinksFunction } from "@remix-run/node";
 import { useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
+import { SpeedInsights } from "@vercel/speed-insights/remix"
 import stylesheet from "~/tailwind.css?url";
 
 export const meta: MetaFunction = ({ location }) => {
@@ -255,6 +256,7 @@ export default function App() {
           <Outlet />
         </div>
       </main>
+      <SpeedInsights />
       <Toaster />
     </div>
   )

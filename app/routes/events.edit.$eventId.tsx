@@ -28,7 +28,7 @@ import {
 import { updateEvent } from '~/db/server.event';
 import { Datepicker, localeJa, setOptions } from "@mobiscroll/react";
 import '@mobiscroll/react/dist/css/mobiscroll.min.css';
-import { set } from 'date-fns';
+import { Loader2 } from 'lucide-react';
 
 setOptions({
     theme: 'ios',
@@ -85,15 +85,18 @@ export default function EditEvents() {
     // データベースからの候補日時をフォーマットして表示
     const [candidates, setCandidates] = useState<string[]>(event.candidates?.map(candidate => new Date(candidate).toISOString().split('.')[0]) ?? []);
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [open, setOpen] = useState<boolean>(false);
     const { toast } = useToast();
     const submit = useSubmit();
-    const formRef = useRef(null);
 
 
     async function onSubmit(formData: FormData) {
+        setLoading(true);
         const formDataWithCandidates = { ...formData, candidates };
         // 候補日時を選択していない場合はエラーを表示
         if (candidates.length === 0) {
+            setLoading(false);
             toast({
                 title: '候補日時が選択されていません',
                 description: '候補日時を選択してください',
@@ -105,6 +108,7 @@ export default function EditEvents() {
         for (const candidate of candidates) {
             const date = new Date(candidate);
             if (isNaN(date.getTime())) {
+                setLoading(false);
                 toast({
                     title: '日時未指定の候補日時があります',
                     description: '候補日時を指定してください',
@@ -123,7 +127,7 @@ export default function EditEvents() {
             <div className="space-y-6 py-10 px-10">
                 <div className="space-y-2">
                     <h1 className="text-4xl font-bold tracking-wide md:text-3xl">イベント編集</h1>
-                    <p className="text-sm text-red-600">イベント情報の編集を行い更新を行うと<br/>参加者の出席状況が全てリセットされます</p>
+                    <p className="text-sm text-red-600">イベント情報の編集を行い更新を行うと<br />参加者の出席状況が全てリセットされます</p>
                 </div>
                 <div className="space-y-6">
                     <form onSubmit={form.handleSubmit(onSubmit)} id="eventreset">
@@ -239,12 +243,14 @@ export default function EditEvents() {
                                             const newCandidates = [...candidates];
                                             newCandidates.splice(index, 1);
                                             setCandidates(newCandidates);
-                                        }}>削除</Button>
+                                        }}>
+                                            削除
+                                        </Button>
                                     </li>
                                 ))}
                             </ul>
                         </div>
-                        <AlertDialog>
+                        <AlertDialog open={loading === true ? true : open} onOpenChange={setOpen}>
                             <AlertDialogTrigger>
                                 <Button type="button" className="w-full" variant="destructive">イベント情報を更新する</Button>
                             </AlertDialogTrigger>
@@ -257,7 +263,16 @@ export default function EditEvents() {
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                     <AlertDialogCancel>キャンセル</AlertDialogCancel>
-                                    <AlertDialogAction type="submit" form="eventreset">更新</AlertDialogAction>
+                                    {loading ? (
+                                        <Button disabled>
+                                            <Loader2 className="w-6 h-6" />
+                                            イベント情報を更新中
+                                        </Button>
+                                    ) : (
+                                        <AlertDialogAction type="submit" form="eventreset">
+                                            更新
+                                        </AlertDialogAction>
+                                    )}
                                 </AlertDialogFooter>
                             </AlertDialogContent>
                         </AlertDialog>

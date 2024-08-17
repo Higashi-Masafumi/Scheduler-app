@@ -158,4 +158,5 @@ export const deleteEvent = async function (eventId: number) {
             id: eventId
         }
     });
+    return true;
 }
