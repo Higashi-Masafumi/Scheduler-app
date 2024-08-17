@@ -243,9 +243,11 @@ export function WelcomeNavigationHeader() {
 export default function App() {
   const { pathname } = useLoaderData<typeof loader>();
   const navigation = useNavigation();
+  // 一般公開ページのパスのリスト
+  const publicPaths = ["/", "/login", "/signup", "/privacy-policy", "/change-password", "/reset-password"];
   return (
     <div>
-      {pathname === "/login" || pathname === "/" || pathname === "/signup" ? <WelcomeNavigationHeader /> : <NavigationHeader />}
+      {publicPaths.includes(pathname) ? <WelcomeNavigationHeader /> : <NavigationHeader />}
       <main>
         <div
           className={

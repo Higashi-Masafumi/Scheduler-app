@@ -12,10 +12,10 @@ export default function WelcomePage() {
           <p className="text-lg mb-6">
             簡単にスケジュール調整を行い、イベントを円滑に進めましょう。
           </p>
-          <img 
-            src="../homepage.png" 
-            alt="イベントスケジューリング" 
-            className="mx-auto mb-6 w-full max-w-md rounded-lg shadow-lg" 
+          <img
+            src="../homepage.png"
+            alt="イベントスケジューリング"
+            className="mx-auto mb-6 w-full max-w-md rounded-lg shadow-lg"
           />
         </div>
 
@@ -28,14 +28,14 @@ export default function WelcomePage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <img 
-                src="../eventexample.png" 
-                alt="イベント管理" 
-                className="w-full h-40 object-cover rounded-lg mb-4" 
+              <img
+                src="../eventexample.png"
+                alt="イベント管理"
+                className="w-full h-40 object-cover rounded-lg mb-4"
               />
               <div className="space-y-2">
                 <h3 className="text-lg font-bold">
-                シンプルなインターフェースで、最も適した日程を簡単に調整できます。
+                  シンプルなインターフェースで、最も適した日程を簡単に調整できます。
                 </h3>
               </div>
             </CardContent>
@@ -49,10 +49,10 @@ export default function WelcomePage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <img 
-                src="../chatexample.png" 
-                alt="リアルタイムチャット" 
-                className="w-full h-40 object-cover rounded-lg mb-4" 
+              <img
+                src="../chatexample.png"
+                alt="リアルタイムチャット"
+                className="w-full h-40 object-cover rounded-lg mb-4"
               />
               <div className="space-y-2">
                 <h3 className="text-lg font-bold">
@@ -68,6 +68,9 @@ export default function WelcomePage() {
             <Button className="px-6 py-3 text-lg">イベント調整を始める</Button>
           </NavLink>
         </div>
+        <p className="text-center my-7 text-gray-500">
+          <NavLink to="/privacy-policy" className="underline">プライバシーポリシー</NavLink>
+        </p>
       </div>
     </div>
   );
