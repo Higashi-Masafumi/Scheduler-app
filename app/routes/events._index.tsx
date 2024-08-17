@@ -18,7 +18,7 @@ import {
 } from '~/components/ui/alert-dialog';
 import { deleteEvent } from '~/db/server.event';
 import { Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
     const session = await getSession(request.headers.get('Cookie'));
@@ -52,9 +52,9 @@ export type Event = {
 
 export default function HoldingEvents() {
     const holdingEvents = useLoaderData<{ holdingEvents: Event[] }>();
-    // 編集ダイアログの開閉状態を管理
+    // 編集ボタンをクリックしたときのダイアログを管理
     const [open1, setOpen1] = useState<boolean>(false);
-    // 削除ダイアログの開閉状態を管理
+    // 削除ダイアログを管理
     const [open2, setOpen2] = useState<boolean>(false);
     // イベントへ遷移中のローディング状態を管理
     const [loading, setLoading] = useState<boolean>(false);
@@ -62,6 +62,18 @@ export default function HoldingEvents() {
     const [loading1, setLoading1] = useState<boolean>(false);
     // 削除ボタンをクリックしたときのローディング状態を管理
     const [loading2, setLoading2] = useState<boolean>(false);
+    // 選択されたrowのIDを取得
+    const [selectedId, setSelectedId] = useState<number>(-1);
+
+    // 削除処理が走った時に、ある程度の時間をおいてリダイレクトするための処理
+    useEffect(() => {
+        if (loading2) {
+            setTimeout(() => {
+                setLoading2(false);
+                setSelectedId(-1);
+            }, 1000);
+        }
+    }, [loading2]);
 
     const submit = useSubmit();
 
@@ -105,9 +117,11 @@ export default function HoldingEvents() {
             id: "actons",
             cell: ({ row }) => {
                 return (
-                    <AlertDialog open={loading1 === true ? true : open1} onOpenChange={setOpen1}>
+                    <AlertDialog open = { loading1 ? row.original.id === selectedId : open1 && row.original.id === selectedId } onOpenChange={setOpen1}>
                         <AlertDialogTrigger>
-                            <Button>編集</Button>
+                            <Button
+                            onClick={() => setSelectedId(row.original.id)}
+                            >編集</Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                             <AlertDialogHeader>
@@ -119,7 +133,7 @@ export default function HoldingEvents() {
                             <AlertDialogFooter>
                                 <AlertDialogCancel>キャンセル</AlertDialogCancel>
                                 <NavLink to={`/events/edit/${row.original.id}`}>
-                                    {loading1 ?
+                                    {loading1 && selectedId === row.original.id ?
                                         <Button disabled className="w-full">
                                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                             編集画面へ遷移中
@@ -142,9 +156,11 @@ export default function HoldingEvents() {
             id: "actions",
             cell: ({ row }) => {
                 return (
-                    <AlertDialog open={loading2 === true ? true : open2} onOpenChange={setOpen2}>
+                    <AlertDialog open={ loading2 ? row.original.id === selectedId : row.original.id === selectedId && open2} onOpenChange={setOpen2}>
                         <AlertDialogTrigger>
-                            <Button variant="destructive">削除</Button>
+                            <Button variant="destructive"
+                            onClick={() => setSelectedId(row.original.id)}
+                            >削除</Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                             <AlertDialogHeader>
@@ -155,7 +171,7 @@ export default function HoldingEvents() {
                             </AlertDialogDescription>
                             <AlertDialogFooter>
                                 <AlertDialogCancel>キャンセル</AlertDialogCancel>
-                                {loading2 ?
+                                {loading2 && selectedId === row.original.id ?
                                     <Button disabled className="w-full">
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                         削除中
