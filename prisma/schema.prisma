@@ -34,6 +34,7 @@ model Events {
   chats          Chats[]
 
   @@schema("public")
+  @@index([holderId])
 }
 
 model Participants {
@@ -46,6 +47,8 @@ model Participants {
   user     User     @relation(fields: [userId], references: [id])
 
   @@schema("public")
+  @@index([eventId])
+  @@index([userId])
 }
 
 model Chats {
