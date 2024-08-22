@@ -124,7 +124,6 @@ export default function Profile() {
             const supabase = createBrowserClient(env.SUPABASE_URL!, env.SUPABASE_ANON_KEY!);
             const { data, error } = await supabase.storage.from('images').upload(`${userData?.id}/avatar.png`, file, { upsert: true });
             if (error) {
-                console.log("error", error);
                 toast({
                     title: 'アップロードエラー',
                     description: '画像のアップロードに失敗しました。画像のサイズが大きすぎる、またはサポートされていない形式の可能性があります。',
