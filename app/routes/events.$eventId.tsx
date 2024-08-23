@@ -202,7 +202,7 @@ export default function EventTable() {
                     description:
                         <div className="flex items-center space-x-2">
                             <Avatar>
-                                <AvatarImage src={imageurl} alt={username} />
+                                <AvatarImage src={`${imageurl}?v=${new Date().getTime()}`} alt={username} />
                                 <AvatarFallback>{username}</AvatarFallback>
                             </Avatar>
                             <p>{newChat.message}</p>
@@ -297,7 +297,7 @@ export default function EventTable() {
                 return (
                     <div className="flex items-center space-x-4">
                         <Avatar>
-                            <AvatarImage src={row.original.imageurl} alt={row.original.name} />
+                            <AvatarImage src={`${row.original.imageurl}?v=${new Date().getTime()}`} alt={row.original.name} />
                             <AvatarFallback>{row.original.name}</AvatarFallback>
                         </Avatar>
                         <span>{row.original.name}</span>
@@ -324,7 +324,7 @@ export default function EventTable() {
                         {participants.filter(participant => participant.abscence[index] === '出席').map(participant => (
                             <div key={participant.userId} className="flex items-center gap-2">
                                 <Avatar>
-                                    <AvatarImage src={participant.imageurl} alt={participant.name} />
+                                    <AvatarImage src={`${participant.imageurl}?v=${new Date().getTime()}`} alt={participant.name} />
                                     <AvatarFallback>{participant.name}</AvatarFallback>
                                 </Avatar>
                                 <div>{participant.name}</div>
@@ -429,10 +429,10 @@ export default function EventTable() {
                                 <ScrollArea className={chatInputFocused ? "h-[220px] sm:h-[500px]" : "h-[400px] sm:h-[600px]"}>
                                     {formattedChat.map(chat => {
                                         if (chat.userId === userId) {
-                                            return <OwnChatBubble key={chat.createdAt} avatar={chat.imageurl} username={chat.username} message={chat.message} createdAt={chat.createdAt_format} />
+                                            return <OwnChatBubble key={chat.createdAt} avatar={`${chat.imageurl}?v=${new Date().getTime()}`} username={chat.username} message={chat.message} createdAt={chat.createdAt_format} />
                                         }
                                         else {
-                                            return <OtherChatBubble key={chat.createdAt} avatar={chat.imageurl} username={chat.username} message={chat.message} createdAt={chat.createdAt_format} />
+                                            return <OtherChatBubble key={chat.createdAt} avatar={`${chat.imageurl}?v=${new Date().getTime()}`} username={chat.username} message={chat.message} createdAt={chat.createdAt_format} />
                                         }
                                     })}
                                     <ScrollBar orientation="vertical" />

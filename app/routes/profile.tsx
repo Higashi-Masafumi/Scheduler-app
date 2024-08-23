@@ -94,7 +94,7 @@ export default function Profile() {
     });
     const { toast } = useToast();
     const submit = useSubmit();
-    const [previewImage, setPreviewImage] = useState(userData?.imageurl ?? '');
+    const [previewImage, setPreviewImage] = useState(`${userData?.imageurl}?v=${new Date().getTime()}` ?? '');
     const [loading, setLoading] = useState(false);
     const fileInput = useRef<HTMLInputElement | null>(null);
 
