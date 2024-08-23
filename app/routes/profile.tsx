@@ -123,7 +123,7 @@ export default function Profile() {
             reader.readAsDataURL(file);
             const supabase = createBrowserClient(env.SUPABASE_URL!, env.SUPABASE_ANON_KEY!);
             // 画像ファイル名を重複しないようにユーザーIDと現在の日時を使って生成
-            const newfilename = `${Date.now()}-${file.name}`;
+            const newfilename = `${Date.now()}.png`;
             const { data, error } = await supabase.storage.from('images').upload(`${userData?.id}/${newfilename}`, file, { upsert: true });
             console.log(error)
             if (error) {
