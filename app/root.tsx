@@ -30,7 +30,6 @@ import { SpeedInsights } from "@vercel/speed-insights/remix"
 import stylesheet from "~/tailwind.css?url";
 
 export const meta: MetaFunction = ({ location }) => {
-  const { env } = useLoaderData<typeof loader>();
   return [
     { title: "調整くん" },
     {
@@ -40,7 +39,7 @@ export const meta: MetaFunction = ({ location }) => {
     {
       "tagName": "link",
       "rel": "canonical",
-      "href": `${env.VITE_APP_URL}`
+      "href": "https://schedule-app-eta.vercel.app",
     },
     {
       property: "og:title",
@@ -52,7 +51,7 @@ export const meta: MetaFunction = ({ location }) => {
     },
     {
       property : "og:url",
-      content: `${env.VITE_APP_URL}/signup`
+      content: `https://schedule-app-eta.vercel.app/signup`
     }
   ];
 };
