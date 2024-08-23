@@ -122,9 +122,7 @@ export default function Profile() {
             };
             reader.readAsDataURL(file);
             const supabase = createBrowserClient(env.SUPABASE_URL!, env.SUPABASE_ANON_KEY!);
-            // 画像ファイル名を重複しないようにユーザーIDと現在の日時を使って生成
-            const newfilename = `${Date.now()}.png`;
-            const { data, error } = await supabase.storage.from('images').upload(`${userData?.id}/${newfilename}`, file, { upsert: true });
+            const { data, error } = await supabase.storage.from('images').upload(`${userData?.id}/${file.name}`, file, { upsert: true });
             console.log(error)
             if (error) {
                 toast({
@@ -140,7 +138,7 @@ export default function Profile() {
                 action: <ToastAction altText="閉じる">閉じる</ToastAction>
             });
             // 成功した場合は公開URLを取得
-            const { data: publicUrl } = await supabase.storage.from('images').getPublicUrl(`${userData?.id}/${newfilename}`);
+            const { data: publicUrl } = await supabase.storage.from('images').getPublicUrl(`${userData?.id}/${file.name}`);
             // 公開URLをデータベースに保存
             form.setValue('avatar', publicUrl.publicUrl);
         }
