@@ -12,7 +12,7 @@ datasource db {
 
 model User {
   id             String         @id
-  name           String         @default("anoymous") @db.VarChar(30)
+  name           String         @default("anonymous") @db.VarChar(30)
   bio            String?
   email          String         @unique
   imageurl       String?        @default("../anonymous-avatar.jpg")
